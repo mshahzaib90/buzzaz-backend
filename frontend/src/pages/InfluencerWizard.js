@@ -533,7 +533,7 @@ const InfluencerWizard = () => {
     setSuccess('');
   };
 
-const REDIRECT_DELAY_MS = 1500;
+// Removed unused REDIRECT_DELAY_MS to satisfy no-unused-vars
 
 // Wait until backend reflects profile completion to avoid redirect flicker
 const waitForProfileCompletion = async (timeoutMs = 4000, intervalMs = 300) => {

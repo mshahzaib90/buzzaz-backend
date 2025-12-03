@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Container, Row, Col, Card, Badge, Button, Spinner, Alert, Tab, Tabs } from 'react-bootstrap';
 import { useParams, useNavigate } from 'react-router-dom';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Bar, ComposedChart } from 'recharts';
@@ -16,16 +16,7 @@ const UGCCreatorProfile = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => {
-    if (user?.role !== 'brand') {
-      navigate('/dashboard');
-      return;
-    }
-    fetchCreatorProfile();
-  }, [id, user, navigate]);
-
-  const fetchCreatorProfile = async () => {
+  const fetchCreatorProfile = useCallback(async () => {
     try {
       const response = await ugcCreatorAPI.getProfile(id);
       setCreator(response.profile);
@@ -44,7 +35,15 @@ const UGCCreatorProfile = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [id]);
+
+  useEffect(() => {
+    if (user?.role !== 'brand') {
+      navigate('/dashboard');
+      return;
+    }
+    fetchCreatorProfile();
+  }, [id, user, navigate, fetchCreatorProfile]);
 
   const handleStartChat = async () => {
     try {

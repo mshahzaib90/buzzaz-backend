@@ -383,7 +383,7 @@ const UGCDashboard = () => {
     } finally {
       setIsLoadingYT(false);
     }
-  }, [profile?.youtubeChannelId, profile?.youtubeChannelTitle, profile?.youtubeChannelUrl, profile?.youtubeSubscribers, profile?.youtubeViews, profile?.youtubeVideos]);
+  }, [profile?.youtubeChannelId, profile?.youtubeChannelTitle, profile?.youtubeChannelUrl, profile?.youtubeSubscribers, profile?.youtubeViews, profile?.youtubeVideos, user?.uid]);
 
   useEffect(() => {
     // Force refresh profile data

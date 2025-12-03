@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Container, Row, Col, Card, Table, Button, Badge, Spinner, Alert, Form, InputGroup, Pagination, Modal } from 'react-bootstrap';
-import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
 
 const SupportDashboard = () => {
@@ -24,16 +23,9 @@ const SupportDashboard = () => {
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [passwordData, setPasswordData] = useState({ newPassword: '', confirmPassword: '' });
   
-  // Removed unused auth user to satisfy no-unused-vars without changing behavior
-  // const { user } = useAuth();
+  // Removed unused auth import and value to satisfy no-unused-vars without changing behavior
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => {
-    fetchStats();
-    fetchUsers();
-  }, [currentPage, filters]);
-
-  const fetchStats = async () => {
+  const fetchStats = useCallback(async () => {
     try {
       const response = await api.get('/admin/stats');
       setStats(response.data);
@@ -41,9 +33,9 @@ const SupportDashboard = () => {
       console.error('Error fetching stats:', error);
       setError('Failed to fetch statistics');
     }
-  };
+  }, []);
 
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     try {
       setIsLoading(true);
       const params = new URLSearchParams({
@@ -62,7 +54,12 @@ const SupportDashboard = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [currentPage, filters]);
+
+  useEffect(() => {
+    fetchStats();
+    fetchUsers();
+  }, [fetchStats, fetchUsers]);
 
   const handleFilterChange = (field, value) => {
     setFilters(prev => ({ ...prev, [field]: value }));
