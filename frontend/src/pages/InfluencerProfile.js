@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Container, Row, Col, Card, Badge, Button, Spinner, Alert, Tab, Tabs } from 'react-bootstrap';
 import { useParams, useNavigate } from 'react-router-dom';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Bar, ComposedChart } from 'recharts';
@@ -18,16 +18,7 @@ const InfluencerProfile = () => {
   const [success, setSuccess] = useState('');
   const [showEmailModal, setShowEmailModal] = useState(false);
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => {
-    if (user?.role !== 'brand') {
-      navigate('/dashboard');
-      return;
-    }
-    fetchInfluencerProfile();
-  }, [id, user, navigate]);
-
-  const fetchInfluencerProfile = async () => {
+  const fetchInfluencerProfile = useCallback(async () => {
     try {
       const [profileResponse, statsResponse] = await Promise.all([
         influencerAPI.getProfile(id),
@@ -42,7 +33,16 @@ const InfluencerProfile = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [id]);
+
+  useEffect(() => {
+    if (user?.role !== 'brand') {
+      navigate('/dashboard');
+      return;
+    }
+    fetchInfluencerProfile();
+  }, [id, user, navigate, fetchInfluencerProfile]);
+
 
   const handleStartChat = async () => {
     try {
