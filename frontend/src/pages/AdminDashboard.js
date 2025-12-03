@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Table, Button, Badge, Spinner, Alert, Form, InputGroup, Pagination, Modal, ProgressBar } from 'react-bootstrap';
 import { ResponsiveContainer, ComposedChart, Line, Bar, XAxis, YAxis, Tooltip, CartesianGrid, PieChart, Pie, Cell } from 'recharts';
-import { useAuth } from '../context/AuthContext';
+// import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
 
 const AdminDashboard = () => {
@@ -33,13 +33,7 @@ const AdminDashboard = () => {
   // Removed unused auth user to satisfy no-unused-vars without changing behavior
   // const { user } = useAuth();
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => {
-    fetchStats();
-    fetchUsers();
-  }, [currentPage, filters]);
-
-  const fetchStats = async () => {
+  const fetchStats = React.useCallback(async () => {
     try {
       const response = await api.get('/admin/stats');
       setStats(response.data);
@@ -47,9 +41,9 @@ const AdminDashboard = () => {
       console.error('Error fetching stats:', error);
       setError('Failed to load statistics');
     }
-  };
+  }, []);
 
-  const fetchUsers = async () => {
+  const fetchUsers = React.useCallback(async () => {
     try {
       setIsLoading(true);
       const params = new URLSearchParams({
@@ -57,9 +51,7 @@ const AdminDashboard = () => {
         limit: 10,
         ...filters
       });
-      
       const response = await api.get(`/admin/users?${params}`);
-      
       setUsers(response.data.users);
       setPagination(response.data.pagination);
     } catch (error) {
@@ -68,7 +60,12 @@ const AdminDashboard = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [currentPage, filters]);
+
+  useEffect(() => {
+    fetchStats();
+    fetchUsers();
+  }, [fetchStats, fetchUsers]);
 
   const handleFilterChange = (key, value) => {
     setFilters(prev => ({ ...prev, [key]: value }));

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Form, Button, Badge, Spinner, Alert, InputGroup, Pagination, Nav, Tab } from 'react-bootstrap';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { influencersAPI } from '../services/api';
 import { chatAPIService as chatAPI } from '../api/chatAPI';
@@ -34,16 +34,7 @@ const BrandDashboard = () => {
   
   const { user } = useAuth();
   
-  useEffect(() => {
-    fetchInfluencers();
-    fetchFilterOptions();
-  }, []);
-
-  useEffect(() => {
-    applyFilters();
-  }, [influencers, filters]);
-
-  const fetchInfluencers = async () => {
+  const fetchInfluencers = React.useCallback(async () => {
     try {
       const response = await influencersAPI.getList();
       setInfluencers(response.data.influencers || []);
@@ -53,21 +44,25 @@ const BrandDashboard = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
-  const fetchFilterOptions = async () => {
+  const fetchFilterOptions = React.useCallback(async () => {
     try {
       const response = await influencersAPI.getFilters();
       setFilterOptions(response.data);
     } catch (error) {
       console.error('Error fetching filter options:', error);
     }
-  };
+  }, []);
 
-  const applyFilters = () => {
+  useEffect(() => {
+    fetchInfluencers();
+    fetchFilterOptions();
+  }, [fetchInfluencers, fetchFilterOptions]);
+
+  useEffect(() => {
     let filtered = [...influencers];
 
-    // Search filter
     if (filters.search) {
       const searchTerm = filters.search.toLowerCase();
       filtered = filtered.filter(influencer => 
@@ -77,14 +72,12 @@ const BrandDashboard = () => {
       );
     }
 
-    // Category filter - Updated for multiple categories
     if (filters.categories && filters.categories.length > 0) {
       filtered = filtered.filter(influencer => 
         influencer.categories?.some(category => filters.categories.includes(category))
       );
     }
 
-    // Followers range filter - fix the data access
     if (filters.minFollowers) {
       const min = parseInt(filters.minFollowers);
       filtered = filtered.filter(influencer => 
@@ -99,14 +92,12 @@ const BrandDashboard = () => {
       );
     }
 
-    // Location filter
     if (filters.location) {
       filtered = filtered.filter(influencer => 
         influencer.location?.toLowerCase().includes(filters.location.toLowerCase())
       );
     }
 
-    // Gender filter
     if (filters.gender) {
       filtered = filtered.filter(influencer => 
         influencer.gender === filters.gender
@@ -114,8 +105,10 @@ const BrandDashboard = () => {
     }
 
     setFilteredInfluencers(filtered);
-    setCurrentPage(1); // Reset to first page when filters change
-  };
+    setCurrentPage(1);
+  }, [influencers, filters]);
+
+  
 
   const handleFilterChange = (name, value) => {
     setFilters(prev => ({

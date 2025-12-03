@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Form, Badge, Dropdown } from 'react-bootstrap';
+import { Form, Badge } from 'react-bootstrap';
 
 const MultiSelect = ({ 
   options = [], 

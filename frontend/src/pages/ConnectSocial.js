@@ -73,23 +73,7 @@ const ConnectSocial = () => {
     }
   };
 
-  const parseYouTubeChannel = (input) => {
-    const trimmed = input.trim();
-    // If a full channel URL is provided, try to extract the channel ID
-    const channelIdMatch = trimmed.match(/channel\/([A-Za-z0-9_-]+)/i);
-    if (channelIdMatch) {
-      return { type: 'id', value: channelIdMatch[1] };
-    }
-
-    // If a handle like @handle is provided
-    const handleMatch = trimmed.match(/@([A-Za-z0-9._-]+)/);
-    if (handleMatch) {
-      return { type: 'search', value: handleMatch[1] };
-    }
-
-    // Otherwise treat it as a search query (channel name)
-    return { type: 'search', value: trimmed };
-  };
+  // Removed unused helper to satisfy no-unused-vars
 
   const handleConnectYouTube = async () => {
     setError('');

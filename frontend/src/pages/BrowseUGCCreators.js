@@ -41,19 +41,7 @@ import MultiSelect from '../components/MultiSelect';
     'Behind the Scenes', 'Lifestyle Content', 'Brand Storytelling', 'Social Media Posts'
   ];
 
-  useEffect(() => {
-    if (user?.role !== 'brand') {
-      navigate('/dashboard');
-      return;
-    }
-    fetchUGCCreators();
-  }, [user, navigate]);
-
-  useEffect(() => {
-    applyFilters();
-  }, [ugcCreators, filters]);
-
-  const fetchUGCCreators = async () => {
+  const fetchUGCCreators = React.useCallback(async () => {
     try {
       const response = await ugcCreatorAPI.browseCreators();
       setUgcCreators(response.ugcCreators || []);
@@ -63,12 +51,19 @@ import MultiSelect from '../components/MultiSelect';
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
-  const applyFilters = () => {
+  useEffect(() => {
+    if (user?.role !== 'brand') {
+      navigate('/dashboard');
+      return;
+    }
+    fetchUGCCreators();
+  }, [user, navigate, fetchUGCCreators]);
+
+  useEffect(() => {
     let filtered = [...ugcCreators];
 
-    // Search filter
     if (filters.search) {
       const searchTerm = filters.search.toLowerCase();
       filtered = filtered.filter(creator => 
@@ -78,39 +73,31 @@ import MultiSelect from '../components/MultiSelect';
       );
     }
 
-    // Category filter
     if (filters.categories && filters.categories.length > 0) {
       filtered = filtered.filter(creator => 
         creator.categories?.some(category => filters.categories.includes(category))
       );
     }
 
-    // Content type filter
     if (filters.contentTypes && filters.contentTypes.length > 0) {
       filtered = filtered.filter(creator => 
         creator.contentTypes?.some(type => filters.contentTypes.includes(type))
       );
     }
 
-    // Price range filter
     if (filters.minPrice) {
       const min = parseFloat(filters.minPrice);
       filtered = filtered.filter(creator => {
-        // Check new pricing structure
         const pricingFields = [
           'reelPostPrice', 'staticPostPrice', 'reelStaticComboPrice', 
           'storyVideoPrice', 'storyShoutoutPrice', 'storyUnboxingPrice',
           'eventAttendancePrice', 'outdoorShootPrice'
         ];
-        
         const hasMatchingPrice = pricingFields.some(field => {
           const price = creator[field];
           return price && price >= min;
         });
-        
-        // Fallback to old price range for backward compatibility
         const hasOldPriceRange = creator.priceRangeMax && creator.priceRangeMax >= min;
-        
         return hasMatchingPrice || hasOldPriceRange;
       });
     }
@@ -118,33 +105,26 @@ import MultiSelect from '../components/MultiSelect';
     if (filters.maxPrice) {
       const max = parseFloat(filters.maxPrice);
       filtered = filtered.filter(creator => {
-        // Check new pricing structure
         const pricingFields = [
           'reelPostPrice', 'staticPostPrice', 'reelStaticComboPrice', 
           'storyVideoPrice', 'storyShoutoutPrice', 'storyUnboxingPrice',
           'eventAttendancePrice', 'outdoorShootPrice'
         ];
-        
         const hasMatchingPrice = pricingFields.some(field => {
           const price = creator[field];
           return price && price <= max;
         });
-        
-        // Fallback to old price range for backward compatibility
         const hasOldPriceRange = creator.priceRangeMin && creator.priceRangeMin <= max;
-        
         return hasMatchingPrice || hasOldPriceRange;
       });
     }
 
-    // Location filter
     if (filters.location) {
       filtered = filtered.filter(creator => 
         creator.location?.toLowerCase().includes(filters.location.toLowerCase())
       );
     }
 
-    // Gender filter
     if (filters.gender) {
       filtered = filtered.filter(creator => 
         creator.gender === filters.gender
@@ -153,7 +133,9 @@ import MultiSelect from '../components/MultiSelect';
 
     setFilteredCreators(filtered);
     setCurrentPage(1);
-  };
+  }, [ugcCreators, filters]);
+
+  
 
   const handleFilterChange = (name, value) => {
     setFilters(prev => ({
@@ -179,7 +161,7 @@ import MultiSelect from '../components/MultiSelect';
       setError('');
       setSuccess('');
       
-      const response = await chatAPI.createConversation(creatorId);
+      await chatAPI.createConversation(creatorId);
       setSuccess('Chat started successfully!');
       
       // Navigate to chat after a brief delay

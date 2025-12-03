@@ -21,7 +21,7 @@ const ProtectedRoute = ({ children, requireRole = null }) => {
       }
     }
     setCheckingProfile(false);
-  }, [isAuthenticated, user, location.pathname]);
+  }, [isAuthenticated, user]);
 
   useEffect(() => {
     if (!isLoading) {
