@@ -1,12 +1,10 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Container, Row, Col, Card, Nav, Tab, Button, Alert, Spinner, Badge, Form, Table, Modal, Carousel } from 'react-bootstrap';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar, ComposedChart, Area, PieChart, Pie, Cell } from 'recharts';
+import { Container, Row, Col, Card, Nav, Tab, Button, Alert, Spinner, Form, Table, Modal, Carousel } from 'react-bootstrap';
+import { Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ComposedChart, Area, PieChart, Pie, Cell } from 'recharts';
 import { useAuth } from '../context/AuthContext';
 import api, { influencerAPI, userAPI } from '../services/api';
-import MultiSelect from '../components/MultiSelect';
 import ChatInterface from '../components/Chat/ChatInterface';
-import YouTubeVideoPlayer from '../components/YouTubeVideoPlayer';
 import '../styles/dashboard.css';
 
 const InfluencerDashboard = () => {
@@ -18,21 +16,11 @@ const InfluencerDashboard = () => {
   const [isUpdating, setIsUpdating] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  // Instagram posts engagement state
-  const [postsLoading, setPostsLoading] = useState(false);
-  const [postsError, setPostsError] = useState('');
-  const [postMetrics, setPostMetrics] = useState([]);
-  const [avgEngagement, setAvgEngagement] = useState(0);
-  const [bestPost, setBestPost] = useState(null);
-  const [worstPost, setWorstPost] = useState(null);
-  // Retry polling state for posts when backend returns empty due to background scrape
-  const [postsRetryCount, setPostsRetryCount] = useState(0);
+  // Instagram posts engagement state removed due to unused UI paths
   
   // Detailed Instagram data state
   const [detailedInstagramData, setDetailedInstagramData] = useState(null);
-  const [detailedLoading, setDetailedLoading] = useState(false);
-  const [detailedError, setDetailedError] = useState('');
-  const [instagramActiveTab, setInstagramActiveTab] = useState('reels');
+  
   // Video player state for reels
   const [selectedReel, setSelectedReel] = useState(null);
   const [showReelModal, setShowReelModal] = useState(false);
@@ -76,8 +64,6 @@ const InfluencerDashboard = () => {
   const [connectLoading, setConnectLoading] = useState(false);
   
   const { user } = useAuth();
-
-  const [userEmail, setUserEmail] = useState('');
 
   const [editMode, setEditMode] = useState(false);
   const [editData, setEditData] = useState({
@@ -142,13 +128,91 @@ const InfluencerDashboard = () => {
     return s;
   };
 
+  // Backfill Instagram username from user.socialConnections if influencer profile is missing it
+  const backfillInstagramFromUser = useCallback(async (currentProfile) => {
+    try {
+      const res = await userAPI.getProfile();
+      const igConn = res?.data?.user?.socialConnections?.instagram;
+      const igUsername = igConn?.username || '';
+
+      if (igConn?.connected && igUsername && !currentProfile?.instagramUsername) {
+        try {
+          await influencerAPI.updateProfile(user.uid, { instagramUsername: igUsername });
+          setProfile({ ...(currentProfile || {}), instagramUsername: igUsername });
+        } catch (upErr) {
+          console.warn('Failed to upsert instagramUsername from user socialConnections:', upErr);
+          setProfile({ ...(currentProfile || {}), instagramUsername: igUsername });
+        }
+      }
+    } catch (err) {
+      console.warn('Unable to read user socialConnections for Instagram backfill:', err);
+    }
+  }, [user?.uid]);
+
+  
+
+  const fetchProfile = useCallback(async () => {
+    console.log('=== fetchProfile called ===');
+    console.log('User UID:', user.uid);
+    try {
+      const response = await influencerAPI.getProfile();
+      const profileData = {
+        ...response.data.profile,
+        latestStats: response.data.latestStats
+      };
+      setProfile(profileData);
+      if (!profileData?.instagramUsername) {
+        backfillInstagramFromUser(profileData);
+      }
+      setEditData({
+        fullName: response.data.profile.fullName || '',
+        bio: response.data.profile.bio || '',
+        location: response.data.profile.location || '',
+        categories: response.data.profile.categories || [],
+        contentTypes: response.data.profile.contentTypes || [],
+        languages: response.data.profile.languages || [],
+        priceRangeMin: response.data.profile.priceRangeMin ?? '',
+        priceRangeMax: response.data.profile.priceRangeMax ?? '',
+        reelPrice: response.data.profile.reelPrice ?? '',
+        storyPrice: response.data.profile.storyPrice ?? '',
+        eventPrice: response.data.profile.eventPrice ?? '',
+        multiplePlatformsPrice: response.data.profile.multiplePlatformsPrice ?? '',
+        averageDeliveryTime: response.data.profile.averageDeliveryTime ?? '',
+        deliveryProductBased: response.data.profile.deliveryProductBased ?? '',
+        deliveryNoProduct: response.data.profile.deliveryNoProduct ?? '',
+        deliveryOutdoorShoot: response.data.profile.deliveryOutdoorShoot ?? '',
+        deliveryRevisions: response.data.profile.deliveryRevisions ?? ''
+      });
+    } catch (error) {
+      console.error('Error fetching profile:', error);
+      if (error?.response?.status === 404) {
+        setError('Profile not found. Redirecting to onboarding...');
+        setTimeout(() => {
+          navigate('/influencer/wizard', { replace: true });
+        }, 500);
+      } else {
+        setError('Failed to load profile data');
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  }, [navigate, user?.uid, backfillInstagramFromUser]);
+
+  const fetchStatsHistory = useCallback(async () => {
+    try {
+      const response = await influencerAPI.getStats(user.uid, 30);
+      setStatsHistory(response.data.stats);
+    } catch (error) {
+      console.error('Error fetching stats history:', error);
+    }
+  }, [user?.uid]);
+
   useEffect(() => {
     if (user?.uid) {
       fetchProfile();
       fetchStatsHistory();
-      fetchUserEmail();
     }
-  }, [user?.uid]);
+  }, [user?.uid, fetchProfile, fetchStatsHistory]);
 
   useEffect(() => {
     const t = setTimeout(() => {
@@ -157,38 +221,29 @@ const InfluencerDashboard = () => {
     return () => clearTimeout(t);
   }, []);
 
-  const fetchUserEmail = async () => {
-    try {
-      const res = await userAPI.getProfile();
-      setUserEmail(res?.data?.user?.email || user?.email || '');
-    } catch (e) {
-      setUserEmail(user?.email || '');
-    }
-  };
+  
 
-  // Backfill Instagram username from user.socialConnections if influencer profile is missing it
-  const backfillInstagramFromUser = async (currentProfile) => {
-    try {
-      const res = await userAPI.getProfile();
-      const igConn = res?.data?.user?.socialConnections?.instagram;
-      const igUsername = igConn?.username || '';
+  // Refresh YouTube data (fetch from API and save to database)
+  const refreshYoutubeData = useCallback(async () => {
+    setYoutubeDetailedLoading(true);
+    setYoutubeDetailedError('');
 
-      // If connected with a username but profile lacks instagramUsername, upsert it
-      if (igConn?.connected && igUsername && !currentProfile?.instagramUsername) {
-        try {
-          await influencerAPI.updateProfile(user.uid, { instagramUsername: igUsername });
-          // Refresh local profile after upsert
-          await fetchProfile();
-        } catch (upErr) {
-          console.warn('Failed to upsert instagramUsername from user socialConnections:', upErr);
-          // As a fallback, at least set it locally so UI reflects connection
-          setProfile({ ...(currentProfile || {}), instagramUsername: igUsername });
-        }
+    try {
+      const response = await influencerAPI.refreshYouTubeAnalytics(user.uid);
+      console.log('YouTube data refreshed:', response);
+      setSuccess('YouTube data refreshed successfully!');
+      setTimeout(() => setSuccess(''), 3000);
+    } catch (error) {
+      console.error('Error refreshing YouTube data:', error);
+      let errorMessage = 'Failed to refresh YouTube data';
+      if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
       }
-    } catch (err) {
-      console.warn('Unable to read user socialConnections for Instagram backfill:', err);
+      setYoutubeDetailedError(errorMessage);
+    } finally {
+      setYoutubeDetailedLoading(false);
     }
-  };
+  }, [user?.uid]);
 
   // Fetch detailed YouTube analytics from our backend
   const fetchDetailedYoutubeData = useCallback(async () => {
@@ -262,39 +317,10 @@ const InfluencerDashboard = () => {
     } finally {
       setYoutubeDetailedLoading(false);
     }
-  }, [user?.uid]);
+  }, [user?.uid, refreshYoutubeData]);
 
   
-
-  // Refresh YouTube data (fetch from API and save to database)
-  const refreshYoutubeData = useCallback(async () => {
-    setYoutubeDetailedLoading(true);
-    setYoutubeDetailedError('');
-
-    try {
-      const response = await influencerAPI.refreshYouTubeAnalytics(user.uid);
-      console.log('YouTube data refreshed:', response);
-      
-      // After successful refresh, fetch the detailed data
-      await fetchDetailedYoutubeData();
-      
-      setSuccess('YouTube data refreshed successfully!');
-      setTimeout(() => setSuccess(''), 3000);
-      
-    } catch (error) {
-      console.error('Error refreshing YouTube data:', error);
-      
-      let errorMessage = 'Failed to refresh YouTube data';
-      
-      if (error.response?.data?.message) {
-        errorMessage = error.response.data.message;
-      }
-      
-      setYoutubeDetailedError(errorMessage);
-    } finally {
-      setYoutubeDetailedLoading(false);
-    }
-  }, [user?.uid, fetchDetailedYoutubeData]);
+  
 
   // Fetch YouTube stats from backend (after refresh defined to avoid TDZ)
   const fetchYouTubeStats = useCallback(async () => {
@@ -342,7 +368,7 @@ const InfluencerDashboard = () => {
   };
 
   // Load Instagram data from Firebase (database only)
-  const fetchDetailedInstagramData = async () => {
+  const fetchDetailedInstagramData = useCallback(async () => {
     console.log('=== fetchDetailedInstagramData called ===');
     console.log('Profile:', profile);
     console.log('Profile Instagram Username:', profile?.instagramUsername);
@@ -354,8 +380,7 @@ const InfluencerDashboard = () => {
       return;
     }
     
-    setDetailedLoading(true);
-    setDetailedError('');
+    
 
     try {
       const apiUrl = `/influencer/${user.uid}/instagram/detailed`;
@@ -387,79 +412,20 @@ const InfluencerDashboard = () => {
       } else if (error.response?.data?.message) {
         errorMessage = error.response.data.message;
       }
-      
-      setDetailedError(errorMessage);
+      setError(errorMessage);
     } finally {
-      setDetailedLoading(false);
+      // no-op
     }
-  };
+  }, [profile, user]);
 
-  // Fetch Instagram posts function
-  const fetchInstagramPosts = async () => {
-    if (!profile?.instagramUsername) return;
-
-    const controller = new AbortController();
-    setPostsLoading(true);
-    setPostsError('');
-
-    // Timeout safeguard to avoid indefinite loading (increase to 45s to allow scraping)
-    const timeoutId = setTimeout(() => {
-      controller.abort();
-      setPostsError('Loading timed out after 45s. Please try again.');
-      setPostsLoading(false);
-    }, 45000);
-
-    try {
-      const res = await api.get(`/influencer/${user.uid}/instagram/posts`, { params: { limit: 10 }, signal: controller.signal });
-      const followers = Number(res.data.followers) || 0;
-      const rows = (res.data.posts || []).map((p, idx) => {
-        const likes = Number(p.likes) || 0;
-        const comments = Number(p.comments) || 0;
-        const engagement = followers > 0 ? ((likes + comments) / followers) * 100 : 0;
-        const label = p.takenAt ? new Date(p.takenAt).toLocaleDateString() : `Post ${idx + 1}`;
-        return { id: p.id || 'N/A', likes, comments, engagement, url: p.url, label };
-      });
-      setPostMetrics(rows);
-      if (rows.length > 0) {
-        const avg = rows.reduce((sum, r) => sum + r.engagement, 0) / rows.length;
-        setAvgEngagement(avg);
-        const best = rows.reduce((max, r) => (r.engagement > (max?.engagement ?? -Infinity) ? r : max), null);
-        const worst = rows.reduce((min, r) => (r.engagement < (min?.engagement ?? Infinity) ? r : min), null);
-        setBestPost(best);
-        setWorstPost(worst);
-        // Reset retry counter once we have data
-        if (postsRetryCount !== 0) setPostsRetryCount(0);
-      } else {
-        setAvgEngagement(0);
-        setBestPost(null);
-        setWorstPost(null);
-        // If no data returned, schedule short polling up to 3 retries
-        if (postsRetryCount < 3) {
-          setTimeout(() => {
-            setPostsRetryCount((c) => c + 1);
-          }, 12000);
-        }
-      }
-    } catch (err) {
-      if (err.name === 'CanceledError') {
-        console.warn('Posts request aborted due to timeout');
-      } else {
-        console.error('Error fetching Instagram posts:', err);
-        setPostsError(err.response?.data?.message || 'Failed to load recent posts');
-      }
-    } finally {
-      clearTimeout(timeoutId);
-      setPostsLoading(false);
-    }
-  };
+  
 
   // Refresh data function
-  const refreshData = async () => {
+  const refreshData = useCallback(async () => {
     setIsLoading(true);
     try {
       await Promise.all([
         fetchProfile(),
-        fetchInstagramPosts(),
         fetchDetailedInstagramData(),
         fetchYouTubeStats(),
         fetchDetailedYoutubeData()
@@ -469,7 +435,7 @@ const InfluencerDashboard = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [fetchProfile, fetchDetailedInstagramData, fetchYouTubeStats, fetchDetailedYoutubeData]);
 
   // Auto-refresh data every 5 minutes
   useEffect(() => {
@@ -477,10 +443,10 @@ const InfluencerDashboard = () => {
       if (profile?.id) {
         refreshData();
       }
-    }, 5 * 60 * 1000); // 5 minutes
+    }, 5 * 60 * 1000);
 
     return () => clearInterval(interval);
-  }, [profile?.id]);
+  }, [profile?.id, refreshData]);
 
   // Fetch YouTube stats and detailed data when user context is available
   useEffect(() => {
@@ -490,13 +456,12 @@ const InfluencerDashboard = () => {
     }
   }, [user?.uid, fetchYouTubeStats, fetchDetailedYoutubeData]);
 
-  // Fetch recent Instagram posts and compute engagement when insights tab is active
+  // Fetch Instagram detailed data when insights tab is active
   useEffect(() => {
     if (activeTab === 'insights') {
-      fetchInstagramPosts();
       fetchDetailedInstagramData();
     }
-  }, [activeTab, profile?.instagramUsername, user?.uid, postsRetryCount]);
+  }, [activeTab, profile?.instagramUsername, user?.uid, fetchDetailedInstagramData]);
 
   // Fetch detailed YouTube data when YouTube tab is active
   useEffect(() => {
@@ -515,82 +480,16 @@ const InfluencerDashboard = () => {
     ) {
       refreshYoutubeData().finally(() => setYtAutoRefreshed(true));
     }
-  }, [activeTab, youtubeDetailedLoading, detailedYoutubeData, ytAutoRefreshed]);
+  }, [activeTab, youtubeDetailedLoading, detailedYoutubeData, ytAutoRefreshed, refreshYoutubeData]);
 
   // Fetch Instagram data when profile is loaded and has Instagram username
   useEffect(() => {
     if (profile?.instagramUsername) {
       fetchDetailedInstagramData();
     }
-  }, [profile?.instagramUsername, user?.uid]);
+  }, [profile?.instagramUsername, user?.uid, fetchDetailedInstagramData]);
 
-  const fetchProfile = async () => {
-    console.log('=== fetchProfile called ===');
-    console.log('User UID:', user.uid);
-    
-    try {
-      const response = await influencerAPI.getProfile(); // Removed user.uid parameter
-      console.log('Profile API Response:', response);
-      console.log('Profile Data:', response.data);
-      
-      // Store the complete response data including latestStats
-      const profileData = {
-        ...response.data.profile,
-        latestStats: response.data.latestStats
-      };
-      
-      console.log('Setting profile data:', profileData);
-      console.log('Instagram Username in profile:', profileData.instagramUsername);
-      
-      setProfile(profileData);
-      // If instagramUsername is missing, attempt a backfill from user socialConnections
-      if (!profileData?.instagramUsername) {
-        backfillInstagramFromUser(profileData);
-      }
-      setEditData({
-        fullName: response.data.profile.fullName || '',
-        bio: response.data.profile.bio || '',
-        location: response.data.profile.location || '',
-        categories: response.data.profile.categories || [],
-        contentTypes: response.data.profile.contentTypes || [],
-        languages: response.data.profile.languages || [],
-        priceRangeMin: response.data.profile.priceRangeMin ?? '',
-        priceRangeMax: response.data.profile.priceRangeMax ?? '',
-        reelPrice: response.data.profile.reelPrice ?? '',
-        storyPrice: response.data.profile.storyPrice ?? '',
-        eventPrice: response.data.profile.eventPrice ?? '',
-        multiplePlatformsPrice: response.data.profile.multiplePlatformsPrice ?? '',
-        averageDeliveryTime: response.data.profile.averageDeliveryTime ?? '',
-        deliveryProductBased: response.data.profile.deliveryProductBased ?? '',
-        deliveryNoProduct: response.data.profile.deliveryNoProduct ?? '',
-        deliveryOutdoorShoot: response.data.profile.deliveryOutdoorShoot ?? '',
-        deliveryRevisions: response.data.profile.deliveryRevisions ?? ''
-      });
-    } catch (error) {
-      console.error('Error fetching profile:', error);
-      // If profile is missing (404), redirect user to onboarding wizard
-      if (error?.response?.status === 404) {
-        setError('Profile not found. Redirecting to onboarding...');
-        // Small delay so the user sees the message briefly
-        setTimeout(() => {
-          navigate('/influencer/wizard', { replace: true });
-        }, 500);
-      } else {
-        setError('Failed to load profile data');
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const fetchStatsHistory = async () => {
-    try {
-      const response = await influencerAPI.getStats(user.uid, 30);
-      setStatsHistory(response.data.stats);
-    } catch (error) {
-      console.error('Error fetching stats history:', error);
-    }
-  };
+  
 
   const handleUpdateProfile = async () => {
     setIsUpdating(true);
@@ -950,22 +849,22 @@ const InfluencerDashboard = () => {
                     <span className="fs-5 sidebar-logo">BUZZAZ</span>
                   </div>
                   <Nav className="flex-column">
-                    <Nav.Link eventKey="profile" className="glass-button mb-2">
+                    <Button type="button" className="glass-button mb-2" onClick={() => setActiveTab('profile')}>
                       <i className="bi bi-person me-2"></i>
                       Profile
-                    </Nav.Link>
-                    <Nav.Link eventKey="insights" className="glass-button mb-2">
+                    </Button>
+                    <Button type="button" className="glass-button mb-2" onClick={() => setActiveTab('insights')}>
                       <i className="bi bi-instagram me-2"></i>
                       Instagram
-                    </Nav.Link>
-                    <Nav.Link eventKey="youtube" className="glass-button mb-2">
+                    </Button>
+                    <Button type="button" className="glass-button mb-2" onClick={() => setActiveTab('youtube')}>
                       <i className="bi bi-youtube me-2"></i>
                       YouTube
-                    </Nav.Link>
-                    <Nav.Link eventKey="chat" className="glass-button mb-2">
+                    </Button>
+                    <Button type="button" className="glass-button mb-2" onClick={() => setActiveTab('chat')}>
                       <i className="bi bi-chat-dots me-2"></i>
                       Messages
-                    </Nav.Link>
+                    </Button>
                   </Nav>
                 </div>
               </Col>
@@ -1254,15 +1153,9 @@ const InfluencerDashboard = () => {
                       const impressionsCount = detailedInstagramData?.analytics?.impressions ?? 0;
                       const profileVisits = detailedInstagramData?.analytics?.profileVisits ?? Math.round((reachCount || followersCount) * 0.18);
                       // Prefer backend-provided breakdown; fallback to derived
-                      const followersReach = detailedInstagramData?.analytics?.followersReach ?? Math.min(followersCount, reachCount || followersCount);
-                      const nonFollowersCount = detailedInstagramData?.analytics?.nonFollowersReach ?? Math.max(0, (reachCount || followersCount * 1.4) - followersReach);
+                      // Removed unused followersReach to satisfy lint
 
-                      // Create 6 bars from blended metrics to match screenshot look
-                      const bars = Array.from({ length: 6 }, (_, i) => {
-                        const f = Math.round(followersCount * (0.0025 + i * 0.0008));
-                        const nf = Math.round(nonFollowersCount * (0.0018 + i * 0.0006));
-                        return { label: `·`, followers: f, nonFollowers: nf };
-                      });
+                      // Charts section removed; drop unused demo data to satisfy lint
 
                       return (
                         <div className="ig-overview-panel mb-4">
@@ -1458,7 +1351,7 @@ const InfluencerDashboard = () => {
                       ? chartDataAll.filter(d => d.videoId === selectedVideoId)
                       : chartDataAll;
 
-                    const pastelEmojis = ['✨', '🎬', '🌟', '🚀', '🎯', '💡'];
+                    // Removed unused constants to satisfy lint
 
                     const metricValue = (val, suffix = '') => {
                       if (val === null || val === undefined) return '—';
@@ -2283,17 +2176,20 @@ const InfluencerDashboard = () => {
           )}
         </Modal.Body>
         <Modal.Footer>
-          <Button 
-            variant="outline-secondary" 
-            size="sm" 
-            href={selectedYtVideo ? `https://www.youtube.com/watch?v=${selectedYtVideo.videoId}` : '#'} 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="me-2"
-          >
-            <i className="bi bi-box-arrow-up-right me-1"></i>
-            Open in YouTube
-          </Button>
+          {selectedYtVideo && (
+            <Button 
+              variant="outline-secondary" 
+              size="sm" 
+              as="a"
+              href={`https://www.youtube.com/watch?v=${selectedYtVideo.videoId}`} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="me-2"
+            >
+              <i className="bi bi-box-arrow-up-right me-1"></i>
+              Open in YouTube
+            </Button>
+          )}
           <Button variant="secondary" onClick={handleCloseYtModal}>Close</Button>
         </Modal.Footer>
       </Modal>

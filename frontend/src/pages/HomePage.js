@@ -46,14 +46,14 @@ const Homepage = () => {
           display: 'flex', alignItems: 'center', gap: '16px', boxSizing: 'border-box'
         }}>
           {/* Left: Logo */}
-          <a href="#" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
+          <Link to="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
             <span style={{
               display: 'inline-flex', width: 28, height: 28, borderRadius: '50%',
               background: '#4cc3ff', color: '#fff', alignItems: 'center', justifyContent: 'center',
               fontWeight: 700, marginRight: 8
             }}>B</span>
             <span style={{ color: '#000', fontWeight: 700 }}>Buzzaz</span>
-          </a>
+          </Link>
 
           {/* Center: Nav links */}
           <nav style={{ display: 'flex', alignItems: 'center', gap: '18px', marginLeft: '24px', flex: 1 }}>
@@ -360,12 +360,13 @@ const Homepage = () => {
                 <p style={{ marginTop: 10, color: '#334155', lineHeight: 1.7 }}>
                   {card.desc}
                 </p>
-                <a href="#" style={{
+                <button type="button" style={{
                   display: 'inline-flex', alignItems: 'center', gap: 6,
-                  marginTop: 18, color: '#2da3f8', textDecoration: 'none', fontWeight: 700
+                  marginTop: 18, color: '#2da3f8', textDecoration: 'none', fontWeight: 700,
+                  background: 'none', border: 'none', padding: 0, cursor: 'pointer'
                 }}>
                   Learn More
-                </a>
+                </button>
               </div>
             ))}
           </div>
@@ -886,7 +887,7 @@ const Homepage = () => {
             <div>
               <div style={{ fontSize: 12, fontWeight: 800, color: '#e5e7eb', letterSpacing: '1px', marginBottom: 12 }}>SOLUTIONS</div>
               {['Influencer Marketing', 'Social Media Management', 'Social Listening'].map((t) => (
-                <a key={t} href="#" style={{ display: 'block', color: '#cbd5e1', textDecoration: 'none', marginBottom: 10 }}>{t}</a>
+                <button key={t} type="button" style={{ display: 'block', color: '#cbd5e1', textDecoration: 'none', marginBottom: 10, background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}>{t}</button>
               ))}
             </div>
 
@@ -894,7 +895,7 @@ const Homepage = () => {
             <div>
               <div style={{ fontSize: 12, fontWeight: 800, color: '#e5e7eb', letterSpacing: '1px', marginBottom: 12 }}>OUR PLATFORM</div>
               {['Influencer Discover', 'Influencer Relationship', 'Campaign Manager', 'Campaign Reports', 'Social Hub', 'Monitoring'].map((t) => (
-                <a key={t} href="#" style={{ display: 'block', color: '#cbd5e1', textDecoration: 'none', marginBottom: 10 }}>{t}</a>
+                <button key={t} type="button" style={{ display: 'block', color: '#cbd5e1', textDecoration: 'none', marginBottom: 10, background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}>{t}</button>
               ))}
             </div>
 
@@ -902,15 +903,15 @@ const Homepage = () => {
             <div>
               <div style={{ fontSize: 12, fontWeight: 800, color: '#e5e7eb', letterSpacing: '1px', marginBottom: 12 }}>FEATURES</div>
               {['Find Influencers', 'Analyze Influencers', 'Influencer Database', 'Recruitment', 'Outreach', 'Manage Campaigns', 'Seeding', 'Payments', 'Measure Results', 'Inbox'].map((t) => (
-                <a key={t} href="#" style={{ display: 'block', color: '#cbd5e1', textDecoration: 'none', marginBottom: 10 }}>{t}</a>
+                <button key={t} type="button" style={{ display: 'block', color: '#cbd5e1', textDecoration: 'none', marginBottom: 10, background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}>{t}</button>
               ))}
             </div>
 
             {/* Use Cases */}
             <div>
               <div style={{ fontSize: 12, fontWeight: 800, color: '#e5e7eb', letterSpacing: '1px', marginBottom: 12 }}>USE CASES</div>
-              {['Brands', 'Agencies', 'Eâ€‘Commerce'].map((t) => (
-                <a key={t} href="#" style={{ display: 'block', color: '#cbd5e1', textDecoration: 'none', marginBottom: 10 }}>{t}</a>
+              {['Brands', 'Agencies', 'ECommerce'].map((t) => (
+                <button key={t} type="button" style={{ display: 'block', color: '#cbd5e1', textDecoration: 'none', marginBottom: 10, background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}>{t}</button>
               ))}
             </div>
 
@@ -918,7 +919,7 @@ const Homepage = () => {
             <div>
               <div style={{ fontSize: 12, fontWeight: 800, color: '#e5e7eb', letterSpacing: '1px', marginBottom: 12 }}>RESOURCES</div>
               {['Influencer Marketing', 'Blog', 'Knowledge Base', 'Videos', 'Ebooks', 'Guides', 'Case Studies', 'Success Stories', 'Webinars'].map((t) => (
-                <a key={t} href="#" style={{ display: 'block', color: '#cbd5e1', textDecoration: 'none', marginBottom: 10 }}>{t}</a>
+                <button key={t} type="button" style={{ display: 'block', color: '#cbd5e1', textDecoration: 'none', marginBottom: 10, background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}>{t}</button>
               ))}
             </div>
 
@@ -926,7 +927,7 @@ const Homepage = () => {
             <div>
               <div style={{ fontSize: 12, fontWeight: 800, color: '#e5e7eb', letterSpacing: '1px', marginBottom: 12 }}>CUSTOMERS</div>
               {['Contact Us', 'Change log', 'Feature requests'].map((t) => (
-                <a key={t} href="#" style={{ display: 'block', color: '#cbd5e1', textDecoration: 'none', marginBottom: 10 }}>{t}</a>
+                <button key={t} type="button" style={{ display: 'block', color: '#cbd5e1', textDecoration: 'none', marginBottom: 10, background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}>{t}</button>
               ))}
             </div>
 
@@ -936,8 +937,8 @@ const Homepage = () => {
           <div style={{ marginTop: 30, borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: 16, color: '#9aa3b2', fontSize: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span>Â© {new Date().getFullYear()} Buzzaz. All rights reserved.</span>
             <div style={{ display: 'flex', gap: 16 }}>
-              <a href="#" style={{ color: '#cbd5e1', textDecoration: 'none' }}>Privacy</a>
-              <a href="#" style={{ color: '#cbd5e1', textDecoration: 'none' }}>Terms</a>
+              <button type="button" style={{ color: '#cbd5e1', textDecoration: 'none', background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}>Privacy</button>
+              <button type="button" style={{ color: '#cbd5e1', textDecoration: 'none', background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}>Terms</button>
             </div>
           </div>
         </div>
