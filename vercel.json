@@ -1,14 +1,11 @@
 {
-  "functions": {
-    "api/**/*.js": {
-      "runtime": "nodejs22.x",
-      "maxDuration": 30
-    }
+  "functions": { 
+    "api/**/*.js": { 
+      "runtime": "nodejs22.x", 
+      "maxDuration": 30 
+    } 
   },
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api/$1" }
-  ],
-  "installCommand": "npm run install-all",
-  "buildCommand": "npm run frontend:build",
-  "outputDirectory": "frontend/build"
+  ]
 }
