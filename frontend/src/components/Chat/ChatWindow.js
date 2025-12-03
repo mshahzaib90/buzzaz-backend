@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Container, Row, Col, Card, Form, Button, ListGroup, Badge, Alert, Dropdown } from 'react-bootstrap';
+import { Card, Form, Button, Badge, Alert, Dropdown } from 'react-bootstrap';
 import { chatAPIService } from '../../api/chatAPI';
 import EmojiPicker from 'emoji-picker-react';
 
