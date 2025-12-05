@@ -5,12 +5,5 @@
       "runtime": "nodejs20.x",
       "maxDuration": 30
     }
-  },
-  "installCommand": "npm run install-all",
-  "buildCommand": "npm --prefix frontend run build",
-  "outputDirectory": "frontend/build",
-  "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api/$1" },
-    { "source": "/(.*)", "destination": "/" }
-  ]
+  }
 }
