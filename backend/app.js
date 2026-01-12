@@ -61,7 +61,9 @@ app.get('/api/health', (req, res) => {
 });
 
 let buildPath = null;
-if (process.env.SERVE_FRONTEND === 'true') {
+const shouldServeFrontend = process.env.NODE_ENV === 'production' || process.env.SERVE_FRONTEND === 'true';
+
+if (shouldServeFrontend) {
   buildPath = path.join(__dirname, '..', 'frontend', 'build');
   app.use(express.static(buildPath));
 }
@@ -84,8 +86,6 @@ app.use((err, req, res, next) => {
     error: process.env.NODE_ENV === 'development' ? err.message : 'Internal server error'
   });
 });
-
-const shouldServeFrontend = process.env.SERVE_FRONTEND === 'true';
 
 if (shouldServeFrontend) {
   app.use('*', (req, res) => {
