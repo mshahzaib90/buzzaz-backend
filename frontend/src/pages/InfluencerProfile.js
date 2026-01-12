@@ -166,7 +166,7 @@ const InfluencerProfile = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [id]);
+  }, [id, navigate]);
 
   useEffect(() => {
     if (user?.role !== 'brand') {
