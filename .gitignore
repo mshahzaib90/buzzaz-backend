@@ -347,7 +347,7 @@ tmp/
 # ===== PROJECT SPECIFIC =====
 
 # Backend uploads
-backend/uploads/
+# backend/uploads/
 backend/public/images/uploads/
 
 # Frontend build artifacts
