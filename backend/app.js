@@ -75,7 +75,8 @@ app.get('/api/health', (req, res) => {
 });
 
 let buildPath = null;
-const shouldServeFrontend = process.env.SERVE_FRONTEND === 'true';
+const shouldServeFrontend = process.env.SERVE_FRONTEND === 'true' || (process.env.NODE_ENV === 'production' && process.env.SERVE_FRONTEND !== 'false');
+console.log(`Serve Frontend: ${shouldServeFrontend} (Env: ${process.env.NODE_ENV})`);
 
 if (shouldServeFrontend) {
   buildPath = path.join(__dirname, '..', 'frontend', 'build');
