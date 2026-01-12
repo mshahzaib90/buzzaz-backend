@@ -351,36 +351,6 @@ const UGCDashboard = () => {
     return percentage;
   };
 
-  const getProfileCompletionMessage = (missingFields) => {
-    const fieldLabels = {
-      fullName: 'Full Name',
-      bio: 'Bio',
-      location: 'Location',
-      reelPostPrice: 'Reel Post Price',
-      staticPostPrice: 'Static Post Price',
-      reelStaticComboPrice: 'Reel + Static Combo Price',
-      storyVideoPrice: 'Story Video Price',
-      storyShoutoutPrice: 'Story Shoutout Price',
-      storyUnboxingPrice: 'Story Unboxing Price',
-      eventAttendancePrice: 'Event Attendance Price',
-      outdoorShootPrice: 'Outdoor Shoot Price',
-      expressDeliveryCharge: 'Express Delivery Charge',
-      niche: 'Niche',
-      contentStyle: 'Content Style'
-    };
-    
-    const missingLabels = missingFields.map(field => fieldLabels[field] || field);
-    
-    if (missingLabels.length === 1) {
-      return `Please complete your ${missingLabels[0]} to finish your profile.`;
-    } else if (missingLabels.length === 2) {
-      return `Please complete your ${missingLabels.join(' and ')} to finish your profile.`;
-    } else {
-      const lastField = missingLabels.pop();
-      return `Please complete your ${missingLabels.join(', ')}, and ${lastField} to finish your profile.`;
-    }
-  };
-
   const categoryOptions = [
     'Fashion', 'Beauty', 'Lifestyle', 'Travel', 'Food', 'Fitness', 'Technology',
     'Gaming', 'Music', 'Art', 'Photography', 'Business', 'Education', 'Health',
@@ -652,54 +622,8 @@ const UGCDashboard = () => {
     return errors;
   };
 
-  // Sample Content / Portfolio handlers
-  const handleSampleContentTypeChange = (e) => {
-    const newType = e.target.value;
-    setEditData(prev => ({
-      ...prev,
-      sampleContentType: newType,
-      sampleContent: newType === 'link' ? '' : prev.sampleContent,
-      sampleLinks: newType === 'link' ? [''] : []
-    }));
-  };
-
-  const handleSampleLinkChange = (index, value) => {
-    const newLinks = [...editData.sampleLinks];
-    newLinks[index] = value;
-    setEditData(prev => ({
-      ...prev,
-      sampleLinks: newLinks
-    }));
-  };
-
-  const addSampleLink = () => {
-    setEditData(prev => ({
-      ...prev,
-      sampleLinks: [...prev.sampleLinks, '']
-    }));
-  };
-
-  const removeSampleLink = (index) => {
-    if (editData.sampleLinks.length > 1) {
-      const newLinks = editData.sampleLinks.filter((_, i) => i !== index);
-      setEditData(prev => ({
-        ...prev,
-        sampleLinks: newLinks
-      }));
-    }
-  };
-
-  const handleFileUpload = (e) => {
-    const files = Array.from(e.target.files);
-    if (files.length > 0) {
-      // Store only the first file since backend expects single file
-      setEditData(prev => ({
-        ...prev,
-        sampleContent: files[0] // Store single file instead of array
-      }));
-    }
-  };
-
+  // Sample Content / Portfolio handlers - unused functions removed
+  
   const handleSaveProfile = async () => {
     setIsUpdating(true);
     setError('');
