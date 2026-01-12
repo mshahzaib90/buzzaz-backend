@@ -116,8 +116,7 @@ const InfluencerProfile = () => {
            const lost = Math.max(0, Math.round(gained * 0.3)); // Assume 30% churn
            
            // Mock content metrics
-           const postsThisMonth = Math.round(Math.random() * 8) + 2;
-           const avgLikes = Math.round(followerCount * baseEngagement * 0.8);
+          const avgLikes = Math.round(followerCount * baseEngagement * 0.8);
            const avgComments = Math.round(avgLikes * 0.05);
            const avgShares = Math.round(avgLikes * 0.1);
            const avgSaves = Math.round(avgLikes * 0.15);
