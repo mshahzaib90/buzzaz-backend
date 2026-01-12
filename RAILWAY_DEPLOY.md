@@ -37,6 +37,7 @@ Go to the Backend Service -> **Variables** and add the following:
 -   `YOUTUBE_API_KEY`: Your YouTube Data API Key.
 -   `CRON_SECRET`: A secret string for protecting cron endpoints.
 -   `EMAIL_USER` / `EMAIL_PASS`: For sending emails.
+-   `FRONTEND_BASE_URL`: The full URL of your frontend (e.g., `https://frontend-production.up.railway.app`). Used for password reset links.
 -   `PORT`: `5000` (Optional, Railway assigns one automatically, but good to be explicit).
 
 ### Important Note on File Uploads

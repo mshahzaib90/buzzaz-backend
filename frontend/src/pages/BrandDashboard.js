@@ -18,13 +18,8 @@ const BrandDashboard = () => {
       setActiveTab('chat');
     } else if (location.state?.activeTab) {
       setActiveTab(location.state.activeTab);
-    } else if (location.pathname === '/brand/dashboard') {
-        // Optional: Reset to discover if navigating explicitly to dashboard, 
-        // or keep current behavior. 
-        // If the user was on 'chat' and clicked 'Dashboard', they expect to see the main dashboard.
-        if (activeTab === 'chat') setActiveTab('discover');
     }
-  }, [location.pathname, location.state, activeTab]);
+  }, [location.pathname, location.state]);
   const [influencers, setInfluencers] = useState([]);
   const [filteredInfluencers, setFilteredInfluencers] = useState([]);
   const [filterOptions, setFilterOptions] = useState({
@@ -325,12 +320,22 @@ const BrandDashboard = () => {
       console.log('Chat creation response:', response);
       
       // Try to extract conversation ID from response
-      const conversationId = response?.conversation?.id || response?.id || response?._id || response?.data?.id || response?.data?._id;
+      // Check multiple possible locations for the ID
+      const conversationId = response?.conversationId || response?.conversation?.id || response?.id || response?._id || response?.data?.id || response?.data?._id;
+      
       if (conversationId) {
+        console.log('Setting active conversation ID:', conversationId);
         setCurrentConversationId(conversationId);
+        // Add a small delay to ensure state update is processed before tab switch if needed
+        // though React batching usually handles this.
+      } else {
+        console.warn('Could not extract conversation ID from response:', response);
       }
       
       setActiveTab('chat');
+      
+      // Scroll to top to ensure visibility
+      window.scrollTo(0, 0);
     } catch (error) {
       console.error('Error starting chat:', error);
       console.error('Error details:', error.response?.data);
@@ -727,7 +732,13 @@ const BrandDashboard = () => {
                               className="flex-grow-1"
                               onClick={() => {
                                 const profileId = influencer.id || influencer.uid || influencer._id;
-                                if (profileId) navigate(`/influencer/${profileId}`);
+                                if (profileId) {
+                                  if (influencer.type === 'ugc') {
+                                    navigate(`/ugc-creator/${profileId}`);
+                                  } else {
+                                    navigate(`/influencer/${profileId}`);
+                                  }
+                                }
                               }}
                             >
                               View Profile

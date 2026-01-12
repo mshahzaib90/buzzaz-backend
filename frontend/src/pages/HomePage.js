@@ -896,7 +896,7 @@ const Homepage = () => {
       {/* Footer */}
       <footer style={{ background: '#0d0e10', color: '#fff', padding: '60px 16px' }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-          <div className="footer-grid" style={{ display: 'grid', gap: 40 }}>
+          <div className="footer-grid">
             {/* Brand */}
             <div>
               <div style={{ display: 'flex', alignItems: 'center', marginBottom: 18 }}>
@@ -910,7 +910,7 @@ const Homepage = () => {
             <div>
               <div style={{ fontSize: 12, fontWeight: 800, color: '#e5e7eb', letterSpacing: '1px', marginBottom: 12 }}>SOLUTIONS</div>
               {['Influencer Marketing', 'Social Media Management', 'Social Listening'].map((t) => (
-                <button key={t} type="button" style={{ display: 'block', color: '#cbd5e1', textDecoration: 'none', marginBottom: 10, background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}>{t}</button>
+                <button key={t} type="button" style={{ display: 'block', color: '#cbd5e1', textDecoration: 'none', marginBottom: 10, background: 'none', border: 'none', padding: 0, cursor: 'pointer', textAlign: 'left' }}>{t}</button>
               ))}
             </div>
 
@@ -918,7 +918,7 @@ const Homepage = () => {
             <div>
               <div style={{ fontSize: 12, fontWeight: 800, color: '#e5e7eb', letterSpacing: '1px', marginBottom: 12 }}>OUR PLATFORM</div>
               {['Influencer Discover', 'Influencer Relationship', 'Campaign Manager', 'Campaign Reports', 'Social Hub', 'Monitoring'].map((t) => (
-                <button key={t} type="button" style={{ display: 'block', color: '#cbd5e1', textDecoration: 'none', marginBottom: 10, background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}>{t}</button>
+                <button key={t} type="button" style={{ display: 'block', color: '#cbd5e1', textDecoration: 'none', marginBottom: 10, background: 'none', border: 'none', padding: 0, cursor: 'pointer', textAlign: 'left' }}>{t}</button>
               ))}
             </div>
 
@@ -926,15 +926,15 @@ const Homepage = () => {
             <div>
               <div style={{ fontSize: 12, fontWeight: 800, color: '#e5e7eb', letterSpacing: '1px', marginBottom: 12 }}>FEATURES</div>
               {['Find Influencers', 'Analyze Influencers', 'Influencer Database', 'Recruitment', 'Outreach', 'Manage Campaigns', 'Seeding', 'Payments', 'Measure Results', 'Inbox'].map((t) => (
-                <button key={t} type="button" style={{ display: 'block', color: '#cbd5e1', textDecoration: 'none', marginBottom: 10, background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}>{t}</button>
+                <button key={t} type="button" style={{ display: 'block', color: '#cbd5e1', textDecoration: 'none', marginBottom: 10, background: 'none', border: 'none', padding: 0, cursor: 'pointer', textAlign: 'left' }}>{t}</button>
               ))}
             </div>
 
             {/* Use Cases */}
             <div>
               <div style={{ fontSize: 12, fontWeight: 800, color: '#e5e7eb', letterSpacing: '1px', marginBottom: 12 }}>USE CASES</div>
-              {['Brands', 'Agencies', 'ECommerce'].map((t) => (
-                <button key={t} type="button" style={{ display: 'block', color: '#cbd5e1', textDecoration: 'none', marginBottom: 10, background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}>{t}</button>
+              {['Brands', 'Agencies', 'E-Commerce'].map((t) => (
+                <button key={t} type="button" style={{ display: 'block', color: '#cbd5e1', textDecoration: 'none', marginBottom: 10, background: 'none', border: 'none', padding: 0, cursor: 'pointer', textAlign: 'left' }}>{t}</button>
               ))}
             </div>
 
@@ -942,7 +942,7 @@ const Homepage = () => {
             <div>
               <div style={{ fontSize: 12, fontWeight: 800, color: '#e5e7eb', letterSpacing: '1px', marginBottom: 12 }}>RESOURCES</div>
               {['Influencer Marketing', 'Blog', 'Knowledge Base', 'Videos', 'Ebooks', 'Guides', 'Case Studies', 'Success Stories', 'Webinars'].map((t) => (
-                <button key={t} type="button" style={{ display: 'block', color: '#cbd5e1', textDecoration: 'none', marginBottom: 10, background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}>{t}</button>
+                <button key={t} type="button" style={{ display: 'block', color: '#cbd5e1', textDecoration: 'none', marginBottom: 10, background: 'none', border: 'none', padding: 0, cursor: 'pointer', textAlign: 'left' }}>{t}</button>
               ))}
             </div>
 
@@ -950,7 +950,7 @@ const Homepage = () => {
             <div>
               <div style={{ fontSize: 12, fontWeight: 800, color: '#e5e7eb', letterSpacing: '1px', marginBottom: 12 }}>CUSTOMERS</div>
               {['Contact Us', 'Change log', 'Feature requests'].map((t) => (
-                <button key={t} type="button" style={{ display: 'block', color: '#cbd5e1', textDecoration: 'none', marginBottom: 10, background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}>{t}</button>
+                <button key={t} type="button" style={{ display: 'block', color: '#cbd5e1', textDecoration: 'none', marginBottom: 10, background: 'none', border: 'none', padding: 0, cursor: 'pointer', textAlign: 'left' }}>{t}</button>
               ))}
             </div>
 
@@ -958,7 +958,7 @@ const Homepage = () => {
           </div>
 
           <div style={{ marginTop: 30, borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: 16, color: '#9aa3b2', fontSize: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span>Â© {new Date().getFullYear()} Buzzaz. All rights reserved.</span>
+            <span>&copy; {new Date().getFullYear()} Buzzaz. All rights reserved.</span>
             <div style={{ display: 'flex', gap: 16 }}>
               <button type="button" style={{ color: '#cbd5e1', textDecoration: 'none', background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}>Privacy</button>
               <button type="button" style={{ color: '#cbd5e1', textDecoration: 'none', background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}>Terms</button>

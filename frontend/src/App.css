@@ -457,3 +457,30 @@
   background: #1e293b;
   transform: translateY(-1px);
 }
+
+/* Footer Grid */
+.footer-grid {
+  display: grid;
+  grid-template-columns: 1.5fr repeat(6, 1fr);
+  gap: 40px;
+}
+
+@media (max-width: 992px) {
+  .footer-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 576px) {
+  .footer-grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+    text-align: center;
+  }
+  .footer-grid button {
+    text-align: center !important;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
