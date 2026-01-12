@@ -632,7 +632,7 @@ const CreateCampaignWizard = ({ show, onHide, onSubmit }) => {
             <div className="mb-4">
                 <label className="wizard-input-label">Target Interests</label>
                 <div className="d-flex flex-wrap gap-2 align-items-center">
-                    {formData.interests.map((interest, idx) => {
+                    {(formData.interests || []).map((interest, idx) => {
                         // Cycle through colors
                         const colors = ['blue', 'purple', 'pink'];
                         const colorClass = colors[idx % colors.length];
@@ -1091,8 +1091,8 @@ const CreateCampaignWizard = ({ show, onHide, onSubmit }) => {
             }));
         };
 
-        const selectedCreatorsList = formData.selectedCreators
-            .map(id => creatorsList.find(c => c.id === id))
+        const selectedCreatorsList = (formData.selectedCreators || [])
+            .map(id => (creatorsList || []).find(c => c.id === id))
             .filter(Boolean);
         
         const totalEstimatedBudget = selectedCreatorsList.reduce((acc, curr) => {
@@ -1178,8 +1178,8 @@ const CreateCampaignWizard = ({ show, onHide, onSubmit }) => {
 
                         {/* Creator Grid */}
                         <div className="creators-grid">
-                            {visibleCreators.map(creator => {
-                                const isSelected = formData.selectedCreators.includes(creator.id);
+                            {(visibleCreators || []).map(creator => {
+                                const isSelected = (formData.selectedCreators || []).includes(creator.id);
                                 return (
                                     <div 
                                         key={creator.id} 
