@@ -3,7 +3,6 @@ import { Container, Row, Col, Card, Form, Button, Spinner, Alert, Badge, InputGr
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api, { influencersAPI } from '../services/api';
-import MultiSelect from '../components/MultiSelect';
 import { ugcCreatorAPI } from '../api/ugcAPI';
 import CreateCampaignWizard from '../components/brand/CreateCampaignWizard';
 
@@ -492,7 +491,7 @@ const BrandCampaign = () => {
                       <span className="text-muted" style={{fontSize: '0.75rem'}}>S</span>
                     </div>
                     <div className="calendar-days d-flex flex-wrap row-gap-2">
-                      {calendarDays.map((d, i) => {
+                      {calendarDays && calendarDays.map((d, i) => {
                         const isSelected = d.currentMonth && selectedDay === d.day;
                         return (
                           <div
@@ -557,7 +556,7 @@ const BrandCampaign = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {displayCampaigns.length > 0 ? (
+                      {displayCampaigns && displayCampaigns.length > 0 ? (
                         displayCampaigns.map((c, idx) => {
                           const fmtDate = (d) => d ? new Date(d).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }) : '-';
                           const budget = typeof c.budget === 'number' ? c.budget : 0;

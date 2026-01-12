@@ -3,14 +3,14 @@ import { Container, Row, Col, Card, Tab, Button, Alert, Spinner, Badge, Form, Mo
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { ugcCreatorAPI } from '../api/ugcAPI';
-import api, { getUploadsUrl } from '../services/api';
-import MultiSelect from '../components/MultiSelect';
-import { ResponsiveContainer, ComposedChart, Area, Line, CartesianGrid, XAxis, YAxis, Tooltip, PieChart, Pie, Cell, BarChart, Bar, LabelList, ReferenceLine } from 'recharts';
+import api from '../services/api';
+import { ResponsiveContainer, ComposedChart, Area, Line, CartesianGrid, XAxis, YAxis, Tooltip } from 'recharts';
 import { SiTiktok } from 'react-icons/si';
 import '../styles/dashboard.css';
 import UGCLeftNav from '../components/UGCLeftNav';
 import ChatInterface from '../components/Chat/ChatInterface';
 import EditProfileForm from '../components/EditProfileForm';
+import MultiSelect from '../components/MultiSelect';
 
 const UGCDashboard = () => {
   const navigate = useNavigate();
@@ -37,13 +37,15 @@ const UGCDashboard = () => {
   const [selectedVideo, setSelectedVideo] = useState(null);
   const [showVideoModal, setShowVideoModal] = useState(false);
   const [selectedVideoId, setSelectedVideoId] = useState(null);
+  const [selectedReel, setSelectedReel] = useState(null);
+  const [showReelModal, setShowReelModal] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isUpdating, setIsUpdating] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [showEditProfile, setShowEditProfile] = useState(false);
   // Analytics controls
-  const [analyticsRange, setAnalyticsRange] = useState('7'); // '7' or '30'
+  const [analyticsRange] = useState('7'); // '7' or '30'
   
   // YouTube insights state
   const [youtubeStats, setYoutubeStats] = useState(null);
@@ -60,8 +62,6 @@ const UGCDashboard = () => {
   const [detailedErrorIG, setDetailedErrorIG] = useState('');
   const [tiktokUsernameInput, setTiktokUsernameInput] = useState('');
   const [savingTikTok, setSavingTikTok] = useState(false);
-  const [selectedReel, setSelectedReel] = useState(null);
-  const [showReelModal, setShowReelModal] = useState(false);
   
   const { user } = useAuth();
 

@@ -1,14 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Badge, Button, Spinner, Alert, Tab, Tabs, Form } from 'react-bootstrap';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Bar, ComposedChart, Area } from 'recharts';
 import { useAuth } from '../context/AuthContext';
 import { ugcCreatorAPI } from '../api/ugcAPI';
-import { influencerAPI, API_BASE_URL } from '../services/api';
-import axios from 'axios';
+import { influencerAPI } from '../services/api';
 import { chatAPIService as chatAPI } from '../api/chatAPI';
 import UGCLeftNav from '../components/UGCLeftNav';
 import MultiSelect from '../components/MultiSelect';
+import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ComposedChart, Bar, Area } from 'recharts';
 
 const UGCCreatorProfile = () => {
   const { id } = useParams();
@@ -156,10 +155,7 @@ const UGCCreatorProfile = () => {
         setError('Instagram username is required');
         return;
       }
-      const token = localStorage.getItem('token') || '';
-      await axios.post(`${API_BASE_URL}/influencer/validate-apify`, { instagramUsername: username }, {
-        headers: { 'Authorization': token ? `Bearer ${token}` : undefined }
-      });
+      await influencerAPI.validateApify(username);
       const targetId = id || user?.uid;
       const refreshed = await ugcCreatorAPI.getProfile(targetId);
       setCreator(refreshed.profile);
@@ -202,35 +198,6 @@ const UGCCreatorProfile = () => {
       return (number / 1000).toFixed(1) + 'K';
     }
     return number.toLocaleString();
-  };
-
-  const renderLineChart = (values) => {
-    if (!values || values.length < 2) {
-      return (
-        <div className="text-muted">Not enough data to render chart</div>
-      );
-    }
-    const width = 600;
-    const height = 180;
-    const padding = 20;
-    const max = Math.max(...values, 1);
-    const stepX = (width - padding * 2) / (values.length - 1);
-    const points = values.map((v, i) => {
-      const x = padding + i * stepX;
-      const y = height - padding - (v / max) * (height - padding * 2);
-      return `${x},${y}`;
-    }).join(' ');
-    return (
-      <svg width="100%" height={height} viewBox={`0 0 ${width} ${height}`}>
-        <defs>
-          <linearGradient id="ugcChartGradient" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stopColor="#6F89FF" />
-            <stop offset="100%" stopColor="#8B5CF6" />
-          </linearGradient>
-        </defs>
-        <polyline fill="none" stroke="url(#ugcChartGradient)" strokeWidth="3" points={points} />
-      </svg>
-    );
   };
 
   const calculateCompletionPercentage = (profileData) => {

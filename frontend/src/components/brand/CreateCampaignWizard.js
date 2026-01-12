@@ -418,7 +418,6 @@ const CreateCampaignWizard = ({ show, onHide, onSubmit }) => {
             </button>
             
             <div className="wizard-progress-bar">
-                <div className="wizard-progress-line"></div>
                 {STEPS.map((s) => (
                     <div key={s.id} className={`wizard-step ${step === s.id ? 'active' : ''} ${step > s.id ? 'completed' : ''}`}>
                         <div className="wizard-step-icon">

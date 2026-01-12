@@ -512,7 +512,7 @@ const InfluencerDashboard = () => {
     }
   };
 
-  // Start edit via modal and prefill with current profile values
+
   const handleEditStart = () => {
     setEditData({
       fullName: profile?.fullName || '',

@@ -85,6 +85,8 @@ app.use((err, req, res, next) => {
   });
 });
 
+const shouldServeFrontend = process.env.SERVE_FRONTEND === 'true';
+
 if (shouldServeFrontend) {
   app.use('*', (req, res) => {
     if (req.originalUrl.startsWith('/api')) {

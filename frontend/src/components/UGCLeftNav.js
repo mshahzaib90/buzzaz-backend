@@ -89,13 +89,13 @@ const UGCLeftNav = ({ activeKey, onSelect, user, profile }) => {
           className="flex-column ugc-left-nav"
         >
           <Nav.Item>
-            <Nav.Link eventKey="dashboard" className="d-flex align-items-center">
+            <Nav.Link eventKey="dashboard" className="d-flex align-items-center" onClick={() => onSelect && onSelect('dashboard')}>
               <i className="bi bi-house me-2"></i>
               <span>Dashboard</span>
             </Nav.Link>
           </Nav.Item>
           <Nav.Item>
-            <Nav.Link eventKey="insights" className="d-flex align-items-center">
+            <Nav.Link eventKey="insights" className="d-flex align-items-center" onClick={() => onSelect && onSelect('insights')}>
               <i className="bi bi-youtube me-2 text-danger"></i>
               <span>YouTube</span>
             </Nav.Link>

@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Row, Col, Card, Form, Button, Badge, Spinner, Alert, InputGroup, Pagination, Nav, Tab, Table, Modal, Dropdown } from 'react-bootstrap';
+import { Container, Row, Col, Card, Form, Button, Badge, Spinner, Alert, InputGroup, Pagination, Tab, Table, Modal } from 'react-bootstrap';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api, { influencersAPI, getUploadsUrl } from '../services/api';
 import { chatAPIService as chatAPI } from '../api/chatAPI';
-import MultiSelect from '../components/MultiSelect';
 import ChatInterface from '../components/Chat/ChatInterface';
+import MultiSelect from '../components/MultiSelect';
 
 const BrandDashboard = () => {
   const navigate = useNavigate();
@@ -24,7 +24,7 @@ const BrandDashboard = () => {
         // If the user was on 'chat' and clicked 'Dashboard', they expect to see the main dashboard.
         if (activeTab === 'chat') setActiveTab('discover');
     }
-  }, [location.pathname, location.state]);
+  }, [location.pathname, location.state, activeTab]);
   const [influencers, setInfluencers] = useState([]);
   const [filteredInfluencers, setFilteredInfluencers] = useState([]);
   const [filterOptions, setFilterOptions] = useState({
