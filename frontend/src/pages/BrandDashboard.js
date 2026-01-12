@@ -174,7 +174,7 @@ const BrandDashboard = () => {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [activePlatform]);
 
   const fetchCampaigns = React.useCallback(async () => {
     try {
@@ -287,17 +287,6 @@ const BrandDashboard = () => {
   const toggleCollapsed = (key) => {
     setCollapsed((prev) => ({ ...prev, [key]: !prev[key] }));
   };
-
-  const activeFiltersCount = React.useMemo(() => {
-    let count = 0;
-    if (filters.search) count++;
-    if (filters.categories && filters.categories.length) count++;
-    if (filters.minFollowers) count++;
-    if (filters.maxFollowers) count++;
-    if (filters.location) count++;
-    if (filters.gender) count++;
-    return count;
-  }, [filters]);
 
   const handleStartChat = async (influencer) => {
     try {

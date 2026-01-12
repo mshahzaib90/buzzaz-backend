@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, Button, Form, Row, Col } from 'react-bootstrap';
+import { Modal } from 'react-bootstrap';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { influencersAPI, getUploadsUrl } from '../../services/api';
 import '../../styles/campaign-wizard.css';
@@ -332,43 +332,43 @@ const MOCK_CREATORS = [
     }
 ];
 
-const CreateCampaignWizard = ({ show, onHide, onSubmit }) => {
-    const INITIAL_FORM_DATA = {
-        name: '',
-        workflow: 'PR Campaign',
-        socials: ['instagram'], // Default selected
-        description: '',
-        // Step 2 Data
-        location: 'Worldwide',
-        gender: 'All',
-        ageMin: 18,
-        ageMax: 45,
-        interests: ['Skincare', 'Beauty', 'Fitness'],
-        goal: 'Brand Awareness',
-        audienceNotes: '',
-        // Step 3 Data
-        budget: '50,000',
-        currency: 'USD',
-        budgetType: 'Fixed Budget',
-        platformDistribution: { instagram: 60, youtube: 40 },
-        ugcRequirements: [],
-        influencerRequirements: [],
-        maxSpendPerCreator: '',
-        notes: '',
-        startDate: new Date().toISOString().split('T')[0],
-        endDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-        // Step 4 Data
-        selectedCreators: [], // Start empty; will pre-select from props if needed
-        creatorServices: {} // { creatorId: ['reelPostPrice', 'storyPrice'] }
-    };
+const getInitialFormData = () => ({
+    name: '',
+    workflow: 'PR Campaign',
+    socials: ['instagram'], // Default selected
+    description: '',
+    // Step 2 Data
+    location: 'Worldwide',
+    gender: 'All',
+    ageMin: 18,
+    ageMax: 45,
+    interests: ['Skincare', 'Beauty', 'Fitness'],
+    goal: 'Brand Awareness',
+    audienceNotes: '',
+    // Step 3 Data
+    budget: '50,000',
+    currency: 'USD',
+    budgetType: 'Fixed Budget',
+    platformDistribution: { instagram: 60, youtube: 40 },
+    ugcRequirements: [],
+    influencerRequirements: [],
+    maxSpendPerCreator: '',
+    notes: '',
+    startDate: new Date().toISOString().split('T')[0],
+    endDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    // Step 4 Data
+    selectedCreators: [], // Start empty; will pre-select from props if needed
+    creatorServices: {} // { creatorId: ['reelPostPrice', 'storyPrice'] }
+});
 
+const CreateCampaignWizard = ({ show, onHide, onSubmit }) => {
     const [step, setStep] = useState(1);
-    const [formData, setFormData] = useState(INITIAL_FORM_DATA);
+    const [formData, setFormData] = useState(getInitialFormData);
 
     useEffect(() => {
         if (show) {
             setStep(1);
-            setFormData(INITIAL_FORM_DATA);
+            setFormData(getInitialFormData());
         }
     }, [show]);
 
@@ -757,29 +757,6 @@ const CreateCampaignWizard = ({ show, onHide, onSubmit }) => {
     );
 
     const renderStep3 = () => {
-        // Calculate daily budget
-        const calculateDailyBudget = () => {
-            if (!formData.startDate || !formData.endDate || !formData.budget) return 0;
-            const start = new Date(formData.startDate);
-            const end = new Date(formData.endDate);
-            const diffTime = Math.abs(end - start);
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // inclusive
-            if (diffDays <= 0) return 0;
-            const total = parseFloat(formData.budget.replace(/,/g, '')) || 0;
-            return (total / diffDays).toLocaleString('en-US', { maximumFractionDigits: 2 });
-        };
-
-        // Handle Slider Change
-        const handleSliderChange = (e, platform) => {
-            setFormData(prev => ({
-                ...prev,
-                platformDistribution: {
-                    ...prev.platformDistribution,
-                    [platform]: parseInt(e.target.value)
-                }
-            }));
-        };
-
         return (
             <div className="animate-fade-in">
                 <h2 className="wizard-title">Establish Your Campaign Budget</h2>
@@ -1421,13 +1398,6 @@ const CreateCampaignWizard = ({ show, onHide, onSubmit }) => {
             </div>
         );
     };
-
-    const renderStepPlaceholder = (num) => (
-        <div className="text-center py-5">
-            <h3 className="text-muted">Step {num} Content Placeholder</h3>
-            <p>This section is under construction.</p>
-        </div>
-    );
 
     return (
         <Modal 

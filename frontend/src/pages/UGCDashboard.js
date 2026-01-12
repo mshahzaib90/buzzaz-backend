@@ -37,8 +37,6 @@ const UGCDashboard = () => {
   const [selectedVideo, setSelectedVideo] = useState(null);
   const [showVideoModal, setShowVideoModal] = useState(false);
   const [selectedVideoId, setSelectedVideoId] = useState(null);
-  const [selectedReel, setSelectedReel] = useState(null);
-  const [showReelModal, setShowReelModal] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isUpdating, setIsUpdating] = useState(false);
   const [error, setError] = useState('');
@@ -119,16 +117,6 @@ const UGCDashboard = () => {
       setDetailedLoadingIG(false);
     }
   }, [profile?.instagramUsername, user?.uid]);
-
-  const handleReelClick = (reel) => {
-    setSelectedReel(reel);
-    setShowReelModal(true);
-  };
-
-  const handleCloseReelModal = () => {
-    setShowReelModal(false);
-    setSelectedReel(null);
-  };
 
   const handleSyncInstagram = async () => {
     if (!profile?.instagramUsername) {
@@ -245,51 +233,6 @@ const UGCDashboard = () => {
     } finally {
       setSavingTikTok(false);
     }
-  };
-
-  // Helper function to safely extract filename from sampleContent
-  const getSampleContentFilename = (sampleContent) => {
-    // Handle null or undefined
-    if (!sampleContent) {
-      return 'No file';
-    }
-    
-    // Handle string (normal case)
-    if (typeof sampleContent === 'string') {
-      return sampleContent;
-    }
-    
-    // Handle array (for link type)
-    if (Array.isArray(sampleContent)) {
-      if (sampleContent.length > 0) {
-        return getSampleContentFilename(sampleContent[0]); // Recursive call for first element
-      }
-      return 'No links';
-    }
-    
-    // Handle object (the problematic case)
-    if (typeof sampleContent === 'object' && sampleContent !== null) {
-      // Try common filename properties
-      if (sampleContent.filename) return sampleContent.filename;
-      if (sampleContent.name) return sampleContent.name;
-      if (sampleContent.url) return sampleContent.url;
-      if (sampleContent.value) return sampleContent.value;
-      if (sampleContent.path) return sampleContent.path;
-      
-      // Try to get the first string value from the object
-      const values = Object.values(sampleContent);
-      for (const value of values) {
-        if (typeof value === 'string' && value.trim() !== '') {
-          return value;
-        }
-      }
-      
-      // If all else fails, return a descriptive string instead of [object Object]
-      return `Object with keys: ${Object.keys(sampleContent).join(', ')}`;
-    }
-    
-    // Fallback for any other type
-    return String(sampleContent);
   };
 
   // Define fetchers before effects to satisfy lint rules
@@ -452,54 +395,6 @@ const UGCDashboard = () => {
   const languageOptions = [
     'English', 'Urdu', 'Hindi', 'Arabic', 'Spanish', 'French'
   ];
-
-  // Basic inline line chart renderer (no external deps)
-  const renderLineChart = (values) => {
-    if (!values || values.length < 2) {
-      return (
-        <div className="text-muted">Not enough data to render chart</div>
-      );
-    }
-    const width = 600;
-    const height = 180;
-    const padding = 20;
-    const max = Math.max(...values, 1);
-    const stepX = (width - padding * 2) / (values.length - 1);
-    const points = values.map((v, i) => {
-      const x = padding + i * stepX;
-      const y = height - padding - (v / max) * (height - padding * 2);
-      return `${x},${y}`;
-    }).join(' ');
-    return (
-      <svg width="100%" height={height} viewBox={`0 0 ${width} ${height}`}>
-        <defs>
-          <linearGradient id="ugcChartGradient" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stopColor="#6F89FF" />
-            <stop offset="100%" stopColor="#8B5CF6" />
-          </linearGradient>
-        </defs>
-        <polyline fill="none" stroke="url(#ugcChartGradient)" strokeWidth="3" points={points} />
-      </svg>
-    );
-  };
-
-  const getAnalyticsSeries = () => {
-    const videos = detailedYoutubeData?.recentVideos || [];
-    const count = analyticsRange === '7' ? 7 : 30;
-    const slice = videos.slice(0, count);
-    const series = slice.map(v => {
-      const views = Number(v.viewCount || 0);
-      const likes = Number(v.likeCount || 0);
-      const comments = Number(v.commentCount || 0);
-      const engagement = views > 0 ? ((likes + comments) / views) * 100 : 0;
-      return Math.round(engagement * 10) / 10; // one decimal place
-    });
-    if (series.length === 0) {
-      // placeholder data to show a curve when no analytics available
-      return [5, 8, 7, 9, 12, 11, 15];
-    }
-    return series;
-  };
 
   const fetchProfile = useCallback(async () => {
     try {
@@ -1742,10 +1637,9 @@ const UGCDashboard = () => {
                                         const title = r.title || r.caption || 'Untitled';
                                         const views = r.viewsCount || r.playCount || 0;
                                         const engagementRate = r.engagementRate || 0;
-                                        const onClick = () => handleReelClick(r);
                                         return (
                                           <Col md={4} key={`reel-${idx}-${i}`} className="mb-3">
-                                            <div className="reel-card" onClick={onClick} style={{ cursor: 'pointer', background: thumb ? `url(${thumb}) center/cover no-repeat` : undefined, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                            <div className="reel-card" style={{ background: thumb ? `url(${thumb}) center/cover no-repeat` : undefined, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                               {!thumb && (<i className="bi bi-play-fill fs-2"></i>)}
                                             </div>
                                             <div className="mt-2">

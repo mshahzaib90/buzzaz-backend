@@ -147,21 +147,6 @@ const ChatWindow = ({ conversationId, currentUser, onClose }) => {
     }
   };
 
-  const formatRelative = (timestamp) => {
-    if (!timestamp) return '';
-    const date = new Date(timestamp);
-    const now = new Date();
-    const diff = Math.floor((now - date) / 1000);
-    if (diff < 60) return 'Just now';
-    const mins = Math.floor(diff / 60);
-    if (mins < 60) return `${mins}m ago`;
-    const hours = Math.floor(mins / 60);
-    if (hours < 24) return `${hours}h ago`;
-    const days = Math.floor(hours / 24);
-    if (days < 7) return `${days}d ago`;
-    return date.toLocaleDateString();
-  };
-
   const getOtherParticipant = () => {
     // Add safety checks for undefined values
     if (!conversation || !conversation.participants || !currentUser) {

@@ -186,7 +186,6 @@ const UGCCreatorProfile = () => {
   // YouTube detailed analytics for recent videos
   const [youtubeDetailed, setYoutubeDetailed] = useState(null);
   const [youtubeLoading, setYoutubeLoading] = useState(false);
-  const [youtubeError, setYoutubeError] = useState('');
   const [analyticsRange, setAnalyticsRange] = useState('7'); // '7' or '30'
 
   const formatNumber = (num) => {
@@ -225,20 +224,6 @@ const UGCCreatorProfile = () => {
       }
     });
     return Math.round((completedFields / allRequiredFields.length) * 100);
-  };
-
-  const getAnalyticsSeries = () => {
-    const videos = youtubeDetailed?.recentVideos || [];
-    const count = analyticsRange === '7' ? 7 : 30;
-    const slice = videos.slice(0, count);
-    const series = slice.map(v => {
-      const views = Number(v.viewCount || 0);
-      const likes = Number(v.likeCount || 0);
-      const comments = Number(v.commentCount || 0);
-      const engagement = views > 0 ? ((likes + comments) / views) * 100 : 0;
-      return Number(engagement.toFixed(1));
-    });
-    return series;
   };
 
   const buildChartData = () => {
@@ -295,7 +280,6 @@ const UGCCreatorProfile = () => {
       // Fetch YouTube detailed analytics for recent videos
       try {
         setYoutubeLoading(true);
-        setYoutubeError('');
         const ytResp = await ugcCreatorAPI.getYouTubeAnalytics(targetId);
         // Support both { success, data } and raw data
         const ytData = ytResp?.data || ytResp;
@@ -303,9 +287,7 @@ const UGCCreatorProfile = () => {
       } catch (ytErr) {
         console.log('YouTube analytics not available for this creator:', ytErr);
         setYoutubeDetailed(null);
-        setYoutubeError(
-          ytErr?.response?.data?.message || 'Failed to load recent YouTube videos'
-        );
+        console.error(ytErr?.response?.data?.message || 'Failed to load recent YouTube videos');
       } finally {
         setYoutubeLoading(false);
       }

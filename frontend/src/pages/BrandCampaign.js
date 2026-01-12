@@ -1,25 +1,11 @@
 import React from 'react';
-import { Container, Row, Col, Card, Form, Button, Spinner, Alert, Badge, InputGroup, Table, Dropdown, Modal } from 'react-bootstrap';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import api, { influencersAPI } from '../services/api';
-import { ugcCreatorAPI } from '../api/ugcAPI';
+import { Container, Row, Col, Button, InputGroup, Form, Spinner, Table } from 'react-bootstrap';
+import api from '../services/api';
 import CreateCampaignWizard from '../components/brand/CreateCampaignWizard';
 
 const BrandCampaign = () => {
-  const navigate = useNavigate();
-  const { user } = useAuth();
   const [campaigns, setCampaigns] = React.useState([]);
   const [isCampaignsLoading, setIsCampaignsLoading] = React.useState(false);
-  const [name, setName] = React.useState('');
-  const [startDate, setStartDate] = React.useState('');
-  const [endDate, setEndDate] = React.useState('');
-  const [description, setDescription] = React.useState('');
-  const [participants, setParticipants] = React.useState([]);
-  const [selectedIds, setSelectedIds] = React.useState([]);
-  const [isLoading, setIsLoading] = React.useState(true);
-  const [error, setError] = React.useState('');
-  const [success, setSuccess] = React.useState('');
   const [campaignSearch, setCampaignSearch] = React.useState('');
   const [showCampaignSearch, setShowCampaignSearch] = React.useState(false);
   const [campaignSearchDraft, setCampaignSearchDraft] = React.useState('');
@@ -59,120 +45,19 @@ const BrandCampaign = () => {
     setCampaigns(newCampaigns);
   };
 
-  const DEFAULT_CATEGORIES = [
-    'Beauty', 'Fashion', 'Skincare', 'Tech', 'Lifestyle', 'Food', 'Vegan Food',
-    'Vegetarian Food', 'Cafes', 'Fitness', 'Haircare', 'Makeup', 'Home Decor',
-    'Meal Prep', 'Self-care', 'Parenting & Family', 'Modest fashion', 'Student Life',
-    'Jewelry', 'Travel', 'Health & Wellness', 'Pets', 'Cooking', 'Educational Content',
-    'Comedy', 'Entertainment', 'Finance & Investment', 'Gaming & Esports',
-    'Sustainable Living', 'Cars', "Men's Grooming", 'Music', 'Books'
-  ];
-
-  const [filters, setFilters] = React.useState({
-    search: '',
-    role: 'all',
-    categories: [],
-    location: ''
-  });
-
-  const normalizeInfluencer = (item) => ({
-    id: item.id || item._id || item.uid || item.userId,
-    name: item.fullName || item.name || item.full_name || 'Unknown',
-    role: 'influencer',
-    location: item.location || item.city || item.country || '',
-    avatarUrl: item.avatarUrl || null,
-    followers: item.followers ?? item.followers_count ?? item.followersCount ?? 0,
-    categories: Array.isArray(item.categories)
-      ? item.categories
-      : (typeof item.category === 'string' ? item.category.split(',').map(s => s.trim()).filter(Boolean) : [])
-  });
-
-  const normalizeUGC = (item) => ({
-    id: item.id || item.uid || item.userId,
-    name: item.fullName || 'Unknown',
-    role: 'ugc_creator',
-    location: item.location || '',
-    avatarUrl: null,
-    followers: 0,
-    categories: Array.isArray(item.niche)
-      ? item.niche
-      : (Array.isArray(item.categories) ? item.categories : [])
-  });
-
   const fetchCampaigns = React.useCallback(async () => {
     try {
       setIsCampaignsLoading(true);
       const res = await api.get('/user/campaigns');
       setCampaigns(res.data?.campaigns || []);
     } catch (err) {
-      setError('Failed to load campaigns');
+      console.error('Failed to load campaigns', err);
     } finally {
       setIsCampaignsLoading(false);
     }
   }, []);
 
-  const handleFilterChange = (name, value) => {
-    setFilters(prev => ({ ...prev, [name]: value }));
-  };
 
-  const toggleSelect = (id) => {
-    setSelectedIds((prev) => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
-  };
-
-  const submitCampaign = async () => {
-    setError('');
-    setSuccess('');
-    if (!name.trim()) {
-      setError('Please enter a campaign name');
-      return;
-    }
-    if (!startDate || !endDate) {
-      setError('Please set start and end dates');
-      return;
-    }
-    if (new Date(startDate) > new Date(endDate)) {
-      setError('Start date must be before end date');
-      return;
-    }
-    if (selectedIds.length === 0) {
-      setError('Please select at least one participant');
-      return;
-    }
-    try {
-      const payload = {
-        name,
-        startDate,
-        endDate,
-        description,
-        participants: selectedIds,
-      };
-      const response = await api.post('/user/campaigns', payload);
-      if (response.data?.success) {
-        setSuccess('Campaign saved successfully');
-      } else {
-        setError(response.data?.message || 'Failed to save campaign');
-      }
-    } catch (e) {
-      setError(e.response?.data?.message || e.message || 'Failed to save campaign');
-    }
-  };
-
-  const loadParticipants = React.useCallback(async () => {
-    try {
-      setIsLoading(true);
-      const [infRes, ugcRes] = await Promise.all([
-        influencersAPI.getList(),
-        ugcCreatorAPI.browseCreators({ limit: 100 })
-      ]);
-      const infs = (infRes.data.influencers || []).map(normalizeInfluencer).filter(x => x.id);
-      const ugcs = (ugcRes.creators || ugcRes.data?.creators || []).map(normalizeUGC).filter(x => x.id);
-      setParticipants([...infs, ...ugcs]);
-    } catch (e) {
-      setError('Failed to load participants');
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
 
   const handleWizardSubmit = async (formData) => {
     try {
@@ -231,17 +116,15 @@ const BrandCampaign = () => {
       const res = await api.post('/user/campaigns', payload);
       if (res.data?.success) {
         setShowCreateModal(false);
-        setSuccess(`Campaign "${payload.name}" created successfully`);
         fetchCampaigns();
       } else {
-        setError(res.data?.message || 'Failed to create campaign');
+        console.error(res.data?.message || 'Failed to create campaign');
       }
     } catch (error) {
-      setError(error.response?.data?.message || error.message || 'Failed to create campaign');
+      console.error(error.response?.data?.message || error.message || 'Failed to create campaign');
     }
   };
 
-  React.useEffect(() => { loadParticipants(); }, [loadParticipants]);
   React.useEffect(() => { fetchCampaigns(); }, [fetchCampaigns]);
 
   // Force page background to white
@@ -255,27 +138,6 @@ const BrandCampaign = () => {
       };
     }
   }, []);
-
-  const filteredParticipants = React.useMemo(() => {
-    let list = [...participants];
-    const toLower = (v) => String(v || '').toLowerCase();
-    if (filters.search) {
-      const term = toLower(filters.search);
-      list = list.filter(p => toLower(p.name).includes(term));
-    }
-    if (filters.role !== 'all') {
-      list = list.filter(p => p.role === filters.role);
-    }
-    if (filters.categories && filters.categories.length) {
-      const selectedLower = filters.categories.map(c => toLower(c));
-      list = list.filter(p => (p.categories || []).some(cat => selectedLower.includes(toLower(cat))));
-    }
-    if (filters.location) {
-      const loc = toLower(filters.location);
-      list = list.filter(p => toLower(p.location).includes(loc));
-    }
-    return list;
-  }, [participants, filters]);
 
   const filteredCampaignsForTable = React.useMemo(() => {
     const term = (campaignSearch || '').toLowerCase();

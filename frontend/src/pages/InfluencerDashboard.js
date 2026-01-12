@@ -546,11 +546,6 @@ const InfluencerDashboard = () => {
     setShowEditModal(false);
   };
 
-  const handleMultiSelectChange = (field, evt) => {
-    const values = Array.from(evt.target.selectedOptions).map(opt => opt.value);
-    setEditData(prev => ({ ...prev, [field]: values }));
-  };
-
   const handleCancelEdit = () => {
     setEditMode(false);
     setEditData({
