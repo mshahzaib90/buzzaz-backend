@@ -1,0 +1,29 @@
+[33mcommit 7c31047b5773b00b17360a229103d6df85299d84[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m
+Author: mshahzaib90 <md.shahzaib@gmail.com>
+Date:   Fri Jan 9 18:15:07 2026 +0500
+
+    final code
+
+[33mcommit fcdb4ba173b5fd15b455d261504081a26ca45b79[m[33m ([m[1;31morigin/main[m[33m)[m
+Author: mshahzaib90 <md.shahzaib@gmail.com>
+Date:   Wed Dec 10 17:18:49 2025 +0500
+
+    Netlify: scope build to frontend via netlify.toml, set NODE_VERSION=20, add SPA redirect. Unignore frontend/public/_redirects for optional Netlify file.
+
+[33mcommit 55d35c69378240982e0179cadc9937ea8950929f[m
+Author: mshahzaib90 <md.shahzaib@gmail.com>
+Date:   Wed Dec 10 16:36:42 2025 +0500
+
+    fix
+
+[33mcommit abc6e1c4a2f35ea82bfc1c53b3ca76448a362782[m
+Author: mshahzaib90 <md.shahzaib@gmail.com>
+Date:   Wed Dec 10 16:31:20 2025 +0500
+
+    fix(frontend): stabilize fetchMessages with useCallback and reorder effect to satisfy react-hooks/exhaustive-deps and no-use-before-define
+
+[33mcommit db12ec9cc37c4bf44a3e562f80ac2e5b8a0b2f93[m
+Author: mshahzaib90 <md.shahzaib@gmail.com>
+Date:   Wed Dec 10 16:25:51 2025 +0500
+
+    fix

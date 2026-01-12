@@ -1,0 +1,29 @@
+{
+  "name": "buzzaz-platform",
+  "version": "1.0.0",
+  "description": "Influencer Marketing Platform",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "cd backend && npm run dev",
+    "client": "cd frontend && npm start",
+    "install-all": "npm install && cd backend && npm install && cd ../frontend && npm install",
+    "build": "cd frontend && npm run build"
+  },
+  "keywords": [
+    "influencer",
+    "marketing",
+    "platform"
+  ],
+  "author": "Buzzaz Team",
+  "license": "MIT",
+  "engines": {
+    "node": "20.x"
+  },
+  "devDependencies": {
+    "concurrently": "^7.6.0"
+  },
+  "dependencies": {
+    "axios": "^1.12.2"
+  }
+}

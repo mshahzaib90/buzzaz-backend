@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Browser Auth Debug</title>
+    <style>
+         body { font-family: Arial, sans-serif; margin: 20px; }
+        .output { background: #f5f5f5; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        .button { background: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin: 5px; }
+        .button:hover { background: #0056b3; }
+        .success { color: green; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+    <h1>Browser Authentication Debug</h1>
+    <div id="output" class="output"></div>
+    
+    <button class="button" onclick="checkAuth()">Check Auth State</button>
+    <button class="button" onclick="setValidAuth()">Set Valid Auth</button>
+    <button class="button" onclick="testAPIs()">Test APIs</button>
+    <button class="button" onclick="clearAuth()">Clear Auth</button>
+    
+    <script>
+        const output = document.getElementById('output');
+        
+        function log(message, type = 'info') {
+            const className = type === 'success' ? 'success' : type === 'error' ? 'error' : '';
+            output.innerHTML += `<div class="${className}">${message}</div>`;
+            console.log(message);
+        }
+        
+        function clearOutput() {
+            output.innerHTML = '';
+        }
+        
+        function checkAuth() {
+            clearOutput();
+            log('=== Browser Authentication Debug ===');
+            
+            const token = localStorage.getItem('token');
+            const user = localStorage.getItem('user');
+            
+            log('Token exists: ' + !!token);
+            log('Token length: ' + (token ? token.length : 0));
+            log('User exists: ' + !!user);
+            
+            if (user) {
+                try {
+                    const parsedUser = JSON.parse(user);
+                    log('User UID: ' + parsedUser.uid);
+                    log('User Email: ' + parsedUser.email);
+                    log('User Role: ' + parsedUser.role);
+                    log('Instagram Username: ' + (parsedUser.instagramUsername || 'Not set'));
+                } catch (e) {
+                    log('Error parsing user: ' + e.message, 'error');
+                }
+            }
+        }
+        
+        function setValidAuth() {
+            const validToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJzeDhncXhmU05aUXZsSFhxN0JRSSIsImVtYWlsIjoibXVoYW1tYWQuc2hhaHphaWJAdGFtYXRvcy5jb20iLCJyb2xlIjoiaW5mbHVlbmNlciIsImlhdCI6MTc2MTY0MDg0NSwiZXhwIjoxNzYyMjQ1NjQ1fQ.Yl9peygFe41s8Iz2VANSlMvGAYF31tAvKz_S6EflzZU';
+            const userData = {
+                uid: 'sx8gqxfSNZQvlHXq7BQI',
+                email: 'muhammad.shahzaib@tamatos.com',
+                role: 'influencer',
+                instagramUsername: 'laibybaby'
+            };
+            
+            localStorage.setItem('token', validToken);
+            localStorage.setItem('user', JSON.stringify(userData));
+            
+            log('Auth data set successfully!', 'success');
+            log('Please refresh the main dashboard page to see the changes.', 'success');
+        }
+        
+        function testAPIs() {
+            clearOutput();
+            log('=== Testing APIs ===');
+            
+            const token = localStorage.getItem('token');
+            const user = localStorage.getItem('user');
+            
+            if (!token || !user) {
+                log('No auth data found. Please set valid auth first.', 'error');
+                return;
+            }
+            
+            const parsedUser = JSON.parse(user);
+            
+            // Test Profile API
+            log('Testing Profile API...');
+            fetch(`http://localhost:5000/api/influencer/${parsedUser.uid}/profile`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => {
+                log('Profile API Status: ' + response.status);
+                return response.json();
+            })
+            .then(data => {
+                log('Profile API Success: ' + data.success, 'success');
+                log('Profile Instagram Username: ' + (data.profile?.instagramUsername || 'Not set'));
+            })
+            .catch(error => {
+                log('Profile API Error: ' + error.message, 'error');
+            });
+            
+            // Test Instagram Detailed API
+            setTimeout(() => {
+                log('\\nTesting Instagram Detailed API...');
+                fetch(`http://localhost:5000/api/influencer/${parsedUser.uid}/instagram/detailed`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => {
+                    log('Instagram API Status: ' + response.status);
+                    return response.json();
+                })
+                .then(data => {
+                    log('Instagram API Success: ' + data.success, 'success');
+                    log('Profile Username: ' + (data.profile?.username || 'None'));
+                    log('Reels Count: ' + (data.reels?.length || 0));
+                    log('Analytics Engagement Rate: ' + (data.analytics?.engagementRate || 'N/A'));
+                })
+                .catch(error => {
+                    log('Instagram API Error: ' + error.message, 'error');
+                });
+            }, 1000);
+        }
+        
+        function clearAuth() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            log('Auth data cleared!', 'success');
+        }
+        
+        // Auto-check auth on page load
+        window.onload = function() {
+            checkAuth();
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,6 @@
+{
+  "version": 2,
+  "installCommand": "if [ -f frontend/package.json ]; then npm --prefix frontend ci; fi; if [ -f backend/package.json ]; then npm --prefix backend ci; elif [ -f ../backend/package.json ]; then npm --prefix ../backend ci; else echo 'No backend/package.json found, skipping'; fi",
+  "buildCommand": "npm --prefix frontend run build",
+  "outputDirectory": "frontend/build"
+}
