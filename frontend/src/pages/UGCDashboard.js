@@ -42,8 +42,6 @@ const UGCDashboard = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [showEditProfile, setShowEditProfile] = useState(false);
-  // Analytics controls
-  const [analyticsRange] = useState('7'); // '7' or '30'
   
   // YouTube insights state
   const [youtubeStats, setYoutubeStats] = useState(null);
@@ -266,40 +264,7 @@ const UGCDashboard = () => {
     revisionsDelivery: '3-4 days'
   });
 
-  // Profile completion validation
-  const checkProfileCompletion = (profileData) => {
-    const requiredFields = [
-      'fullName',
-      'bio', 
-      'location',
-      'reelPostPrice',
-      'staticPostPrice'
-    ];
-    
-    const missingFields = [];
-    
-    // Check basic required fields
-    requiredFields.forEach(field => {
-      if (!profileData[field] || profileData[field].toString().trim() === '') {
-        missingFields.push(field);
-      }
-    });
-    
-    // Check niche/categories
-    if (!profileData.niche || profileData.niche.length === 0) {
-      missingFields.push('niche');
-    }
-    
-    // Check contentStyle/contentTypes
-    if (!profileData.contentStyle || profileData.contentStyle.length === 0) {
-      missingFields.push('contentStyle');
-    }
-    
-    return {
-      isComplete: missingFields.length === 0,
-      missingFields
-    };
-  };
+
 
   // Calculate profile completion percentage
   const calculateCompletionPercentage = (profileData) => {
