@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { ugcCreatorAPI } from '../api/ugcAPI';
 import { chatAPIService as chatAPI } from '../api/chatAPI';
 import MultiSelect from '../components/MultiSelect';
+import usePageTitle from '../hooks/usePageTitle';
 
   const BrowseUGCCreators = () => {
   const [ugcCreators, setUgcCreators] = useState([]);
@@ -28,6 +29,8 @@ import MultiSelect from '../components/MultiSelect';
 
   const { user } = useAuth();
   const navigate = useNavigate();
+
+  usePageTitle('Browse Creators');
 
   // Predefined options
   const categoryOptions = [

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Form, Button, Badge, Spinner, Alert, InputGroup, Pagination, Tab, Table, Modal } from 'react-bootstrap';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import usePageTitle from '../hooks/usePageTitle';
 import api, { influencersAPI, getUploadsUrl } from '../services/api';
 import { chatAPIService as chatAPI } from '../api/chatAPI';
 import ChatInterface from '../components/Chat/ChatInterface';
@@ -12,6 +13,8 @@ const BrandDashboard = () => {
   const location = useLocation();
   const [activeTab, setActiveTab] = useState('discover');
   const [currentConversationId, setCurrentConversationId] = useState(null);
+
+  usePageTitle('Brand Dashboard');
 
   useEffect(() => {
     if (location.pathname === '/brand/messages') {

@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { influencerAPI, userAPI } from '../services/api';
 import MultiSelect from '../components/MultiSelect';
+import usePageTitle from '../hooks/usePageTitle';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import '../styles/influencerWizard.css';
@@ -27,6 +28,8 @@ const InfluencerWizard = () => {
   
   const { user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
+
+  usePageTitle('Influencer Wizard');
 
   const [formData, setFormData] = useState({
     // Basics

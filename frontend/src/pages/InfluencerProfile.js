@@ -3,6 +3,7 @@ import { Container, Row, Col, Card, Badge, Button, Spinner, Alert, Tab, Tabs } f
 import { useParams, useNavigate } from 'react-router-dom';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Bar, ComposedChart } from 'recharts';
 import { useAuth } from '../context/AuthContext';
+import usePageTitle from '../hooks/usePageTitle';
 import { influencerAPI, getUploadsUrl } from '../services/api';
 import { chatAPIService as chatAPI } from '../api/chatAPI';
 import EmailModal from '../components/EmailModal';
@@ -17,6 +18,8 @@ const InfluencerProfile = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [showEmailModal, setShowEmailModal] = useState(false);
+
+  usePageTitle(influencer?.fullName || 'Influencer Profile');
 
   const fetchInfluencerProfile = useCallback(async () => {
     try {
@@ -517,7 +520,7 @@ const InfluencerProfile = () => {
                       <Col xs={12} className="mb-3">
                         <Card>
                           <Card.Header className="bg-light">
-                            <h6 className="mb-0 fw-bold text-primary"><i className="bi bi-people me-2"></i>Audience Insights</h6>
+                            <h6 className="mb-0 fw-bold" style={{ color: '#E1306C' }}><i className="bi bi-instagram me-2"></i>Instagram Audience</h6>
                           </Card.Header>
                           <Card.Body>
                             <Row>
@@ -565,7 +568,7 @@ const InfluencerProfile = () => {
                       <Col xs={12} className="mb-3">
                         <Card>
                           <Card.Header className="bg-light">
-                            <h6 className="mb-0 fw-bold text-success"><i className="bi bi-heart me-2"></i>Engagement Metrics</h6>
+                            <h6 className="mb-0 fw-bold" style={{ color: '#F56040' }}><i className="bi bi-heart me-2"></i>Engagement Metrics</h6>
                           </Card.Header>
                           <Card.Body>
                             <Row>
@@ -614,7 +617,7 @@ const InfluencerProfile = () => {
                        <Col xs={12} className="mb-3">
                          <Card>
                            <Card.Header className="bg-light">
-                             <h6 className="mb-0 fw-bold text-info"><i className="bi bi-collection-play me-2"></i>Content Performance</h6>
+                             <h6 className="mb-0 fw-bold" style={{ color: '#C13584' }}><i className="bi bi-collection-play me-2"></i>Content Performance</h6>
                            </Card.Header>
                            <Card.Body>
                              <Row>
@@ -737,7 +740,7 @@ const InfluencerProfile = () => {
                               <Line 
                                 type="monotone" 
                                 dataKey="followers" 
-                                stroke="#0d6efd" 
+                                stroke="#E1306C" 
                                 strokeWidth={2}
                                 name="Followers"
                               />
@@ -761,7 +764,7 @@ const InfluencerProfile = () => {
                               <Line 
                                 type="monotone" 
                                 dataKey="engagement" 
-                                stroke="#198754" 
+                                stroke="#F56040" 
                                 strokeWidth={2}
                                 name="Engagement Rate (%)"
                               />
@@ -811,7 +814,7 @@ const InfluencerProfile = () => {
                       <Col xs={12} className="mb-3">
                         <Card>
                           <Card.Header className="bg-light">
-                            <h6 className="mb-0 fw-bold text-primary"><i className="bi bi-people me-2"></i>Audience Insights</h6>
+                            <h6 className="mb-0 fw-bold text-dark"><i className="bi bi-tiktok me-2" style={{ color: '#ff0050' }}></i>TikTok Audience</h6>
                           </Card.Header>
                           <Card.Body>
                             <Row>
@@ -858,7 +861,7 @@ const InfluencerProfile = () => {
                       <Col xs={12} className="mb-3">
                         <Card>
                           <Card.Header className="bg-light">
-                            <h6 className="mb-0 fw-bold text-success"><i className="bi bi-heart me-2"></i>Engagement Metrics</h6>
+                            <h6 className="mb-0 fw-bold" style={{ color: '#00f2ea' }}><i className="bi bi-activity me-2"></i>Engagement Metrics</h6>
                           </Card.Header>
                           <Card.Body>
                             <Row>
@@ -906,7 +909,7 @@ const InfluencerProfile = () => {
                       <Col xs={12} className="mb-3">
                         <Card>
                           <Card.Header className="bg-light">
-                            <h6 className="mb-0 fw-bold text-info"><i className="bi bi-collection-play me-2"></i>Content Performance</h6>
+                            <h6 className="mb-0 fw-bold" style={{ color: '#ff0050' }}><i className="bi bi-collection-play me-2"></i>Content Performance</h6>
                           </Card.Header>
                           <Card.Body>
                             <Row>
@@ -1030,7 +1033,7 @@ const InfluencerProfile = () => {
                       <Col xs={12} className="mb-3">
                         <Card>
                           <Card.Header className="bg-light">
-                            <h6 className="mb-0 fw-bold text-primary"><i className="bi bi-people me-2"></i>Audience Insights</h6>
+                            <h6 className="mb-0 fw-bold" style={{ color: '#1877f2' }}><i className="bi bi-facebook me-2"></i>Facebook Audience</h6>
                           </Card.Header>
                           <Card.Body>
                             <Row>
@@ -1077,7 +1080,7 @@ const InfluencerProfile = () => {
                       <Col xs={12} className="mb-3">
                         <Card>
                           <Card.Header className="bg-light">
-                            <h6 className="mb-0 fw-bold text-success"><i className="bi bi-heart me-2"></i>Engagement Metrics</h6>
+                            <h6 className="mb-0 fw-bold" style={{ color: '#1877f2' }}><i className="bi bi-hand-thumbs-up me-2"></i>Engagement Metrics</h6>
                           </Card.Header>
                           <Card.Body>
                             <Row>
@@ -1125,7 +1128,7 @@ const InfluencerProfile = () => {
                       <Col xs={12} className="mb-3">
                         <Card>
                           <Card.Header className="bg-light">
-                            <h6 className="mb-0 fw-bold text-info"><i className="bi bi-collection-play me-2"></i>Content Performance</h6>
+                            <h6 className="mb-0 fw-bold" style={{ color: '#1877f2' }}><i className="bi bi-collection-play me-2"></i>Content Performance</h6>
                           </Card.Header>
                           <Card.Body>
                             <Row>

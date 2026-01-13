@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Form, Button, Alert, Spinner } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import usePageTitle from '../hooks/usePageTitle';
 
 const RegisterWithChoice = () => {
   const [formData, setFormData] = useState({
@@ -16,6 +17,8 @@ const RegisterWithChoice = () => {
 
   const { register, isAuthenticated, user, error: authError } = useAuth();
   const navigate = useNavigate();
+
+  usePageTitle('Register');
 
   useEffect(() => {
     if (isAuthenticated && user) {

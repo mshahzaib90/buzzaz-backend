@@ -4,6 +4,7 @@ import { Container, Row, Col, Card, Nav, Tab, Button, Alert, Spinner, Form, Tabl
 import { Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ComposedChart, Area, PieChart, Pie, Cell } from 'recharts';
 import { useAuth } from '../context/AuthContext';
 import api, { influencerAPI, userAPI } from '../services/api';
+import usePageTitle from '../hooks/usePageTitle';
 import ChatInterface from '../components/Chat/ChatInterface';
 import MultiSelect from '../components/MultiSelect';
 import '../styles/dashboard.css';
@@ -11,6 +12,9 @@ import '../styles/dashboard.css';
 const InfluencerDashboard = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('profile');
+
+  usePageTitle('Influencer Dashboard');
+
   const [profile, setProfile] = useState(null);
   const [statsHistory, setStatsHistory] = useState([]);
   const [isLoading, setIsLoading] = useState(true);

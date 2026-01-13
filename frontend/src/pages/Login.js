@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Form, Button, Alert, Spinner } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import usePageTitle from '../hooks/usePageTitle';
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -13,6 +14,9 @@ const Login = () => {
   
   const { login, isAuthenticated, user, error: authError } = useAuth();
   const navigate = useNavigate();
+  
+  usePageTitle('Login');
+
   // Navigation handled via useEffect after successful login
 
   useEffect(() => {

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Container, Row, Col, Card, Tab, Button, Alert, Spinner, Badge, Form, Modal, Carousel, Table } from 'react-bootstrap';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import usePageTitle from '../hooks/usePageTitle';
 import { ugcCreatorAPI } from '../api/ugcAPI';
 import api, { influencerAPI } from '../services/api';
 import { ResponsiveContainer, ComposedChart, Area, Line, CartesianGrid, XAxis, YAxis, Tooltip } from 'recharts';
@@ -15,6 +16,9 @@ import MultiSelect from '../components/MultiSelect';
 const UGCDashboard = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  
+  usePageTitle('UGC Dashboard');
+
   // Utility function to format numbers (e.g., 1234 -> 1.2K, 1234567 -> 1.2M)
   const formatNumber = (num) => {
     if (!num || num === 0) return '0';

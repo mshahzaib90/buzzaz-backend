@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { ugcCreatorAPI } from '../api/ugcAPI';
 import MultiSelect from '../components/MultiSelect';
+import usePageTitle from '../hooks/usePageTitle';
 import '../styles/dashboard.css';
 
 const UGCWizard = () => {
@@ -12,6 +13,8 @@ const UGCWizard = () => {
   
   const { user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
+
+  usePageTitle('UGC Wizard');
 
   const [formData, setFormData] = useState({
     fullName: '',
@@ -264,17 +267,8 @@ const UGCWizard = () => {
       newErrors.bio = 'Bio is required';
     }
 
-    // Sample content validation
-    if (formData.sampleContentType === 'upload' && !formData.sampleContent) {
-      newErrors.sampleContent = 'Please upload a sample content file';
-    } else if (formData.sampleContentType === 'link') {
-      // Validate that at least one link is provided and not empty
-      const validLinks = formData.sampleContentLinks.filter(link => link.trim() !== '');
-      if (validLinks.length === 0) {
-        newErrors.sampleContent = 'Please provide at least one sample content link';
-      }
-    }
-
+    // Sample content validation removed as per user request
+    
     if (!formData.niche || formData.niche.length === 0) {
       newErrors.niche = 'Please select at least one niche';
     }

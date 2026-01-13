@@ -7,6 +7,7 @@ import { influencerAPI } from '../services/api';
 import { chatAPIService as chatAPI } from '../api/chatAPI';
 import UGCLeftNav from '../components/UGCLeftNav';
 import MultiSelect from '../components/MultiSelect';
+import usePageTitle from '../hooks/usePageTitle';
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ComposedChart, Bar, Area } from 'recharts';
 
 const UGCCreatorProfile = () => {
@@ -16,6 +17,9 @@ const UGCCreatorProfile = () => {
   const { user } = useAuth();
   const [activeNav, setActiveNav] = useState('dashboard');
   const [creator, setCreator] = useState(null);
+
+  usePageTitle(creator?.fullName || 'UGC Creator Profile');
+
   const [stats, setStats] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');

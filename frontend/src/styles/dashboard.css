@@ -1435,3 +1435,14 @@ span.d-flex.align-items-center.gap-1.badge.bg-primary {
   background: #fee2e2;
   color: #dc2626;
 }
+
+/* Datepicker overrides */
+.custom-datepicker-wrapper .react-datepicker-wrapper {
+  width: 100%;
+}
+.custom-datepicker-wrapper .react-datepicker__input-container {
+  width: 100%;
+}
+.custom-datepicker-wrapper .react-datepicker__input-container input {
+  width: 100%;
+}
