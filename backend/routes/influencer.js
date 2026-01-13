@@ -14,7 +14,7 @@ const youtubeService = require('../services/youtubeService');
 const router = express.Router();
 
 // Influencer: list campaign invites (where they are selected as participant)
-router.get('/campaigns/invites', authMiddleware, requireRole('influencer'), async (req, res) => {
+router.get('/campaigns/invites', authMiddleware, requireRole(['influencer', 'ugc_creator']), async (req, res) => {
   try {
     // Ensure campaigns table exists
     await pg.query(`
@@ -41,7 +41,13 @@ router.get('/campaigns/invites', authMiddleware, requireRole('influencer'), asyn
       LEFT JOIN users u ON u.uid = c.created_by
       WHERE EXISTS (
         SELECT 1
-        FROM jsonb_array_elements_text(c.participants->'ids') AS elem
+        FROM jsonb_array_elements_text(
+          CASE 
+            WHEN jsonb_typeof(c.participants) = 'array' THEN c.participants
+            WHEN jsonb_typeof(c.participants->'ids') = 'array' THEN c.participants->'ids'
+            ELSE '[]'::jsonb
+          END
+        ) AS elem
         WHERE elem = $1
       )
       ORDER BY c.created_at DESC

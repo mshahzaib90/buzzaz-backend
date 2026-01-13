@@ -101,18 +101,18 @@ router.post('/campaigns', authMiddleware, requireRole('brand'), async (req, res)
     const nextRes = await pg.query("SELECT COALESCE(MAX((regexp_replace(id,'[^0-9]','','g'))::int), 0) + 1 AS n FROM campaigns WHERE id LIKE 'c-%'");
     const id = `c-${String(nextRes.rows[0].n).padStart(2, '0')}`;
     const createdBy = req.user.uid;
-    const payload = {
-      id,
-      name,
-      description: description || '',
-      start_date: startDate,
-      end_date: endDate,
-      created_by: createdBy,
-      participants: JSON.stringify({ ids: participants }),
-      estimated_budget: req.body.estimatedBudget || null,
-      deliverables: req.body.deliverables || '',
-      metadata: req.body.metadata ? JSON.stringify(req.body.metadata) : null
-    };
+      const payload = {
+        id,
+        name,
+        description: description || '',
+        start_date: startDate,
+        end_date: endDate,
+        created_by: createdBy,
+        participants: Array.isArray(participants) ? JSON.stringify(participants) : JSON.stringify({ ids: participants }),
+        estimated_budget: req.body.estimatedBudget || null,
+        deliverables: req.body.deliverables || '',
+        metadata: req.body.metadata ? JSON.stringify(req.body.metadata) : null
+      };
 
     await pg.query(
       `INSERT INTO campaigns (id, name, description, start_date, end_date, created_by, participants, estimated_budget, deliverables, metadata)
@@ -267,7 +267,7 @@ router.put('/campaigns/:id', authMiddleware, requireRole('brand'), async (req, r
     
     if (Array.isArray(participants)) {
       setParts.push(`participants = $${paramIndex}`);
-      vals.push(JSON.stringify({ ids: participants }));
+      vals.push(JSON.stringify(participants));
       paramIndex++;
     }
     
