@@ -56,4 +56,4 @@ Thumbs.db
 .env.production.local
 
 
-backend/uploads/
+uploads/
