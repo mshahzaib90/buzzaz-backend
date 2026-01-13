@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Container, Row, Col, Card, Nav, Tab, Button, Alert, Spinner, Form, Table, Modal, Carousel } from 'react-bootstrap';
+import { Container, Row, Col, Card, Nav, Tab, Button, Alert, Spinner, Form, Table, Modal, Carousel, Badge } from 'react-bootstrap';
 import { Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ComposedChart, Area, PieChart, Pie, Cell } from 'recharts';
 import { useAuth } from '../context/AuthContext';
 import api, { influencerAPI, userAPI } from '../services/api';
@@ -25,6 +25,9 @@ const InfluencerDashboard = () => {
   // Video player state for reels
   const [selectedReel, setSelectedReel] = useState(null);
   const [showReelModal, setShowReelModal] = useState(false);
+  
+  // Campaign view state
+  const [viewCampaign, setViewCampaign] = useState(null);
 
   // One-time guard to avoid multiple auto-refreshes when sample data is detected
   const hasAutoRefreshedYT = useRef(false);
@@ -1819,21 +1822,30 @@ const InfluencerDashboard = () => {
                               </td>
                               <td className="d-flex gap-2">
                                 <Button
-                                  variant="success"
+                                  variant="outline-info"
                                   size="sm"
-                                  disabled={inv.status === 'accepted'}
-                                  onClick={() => respondInvite(inv.id, 'accepted')}
+                                  onClick={() => setViewCampaign(inv)}
                                 >
-                                  Accept
+                                  View
                                 </Button>
-                                <Button
-                                  variant="outline-danger"
-                                  size="sm"
-                                  disabled={inv.status === 'declined'}
-                                  onClick={() => respondInvite(inv.id, 'declined')}
-                                >
-                                  Decline
-                                </Button>
+                                {inv.status !== 'accepted' && (
+                                  <Button
+                                    variant="success"
+                                    size="sm"
+                                    onClick={() => respondInvite(inv.id, 'accepted')}
+                                  >
+                                    Accept
+                                  </Button>
+                                )}
+                                {inv.status !== 'declined' && (
+                                  <Button
+                                    variant="outline-danger"
+                                    size="sm"
+                                    onClick={() => respondInvite(inv.id, 'declined')}
+                                  >
+                                    Decline
+                                  </Button>
+                                )}
                               </td>
                             </tr>
                           ))}
@@ -2214,6 +2226,106 @@ const InfluencerDashboard = () => {
           </Tab.Container>
         </Col>
       </Row>
+
+      {/* Campaign Details Modal */}
+      <Modal show={!!viewCampaign} onHide={() => setViewCampaign(null)} size="lg" centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Campaign Details</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {viewCampaign && (
+            <div className="campaign-details">
+              <Row className="mb-4">
+                <Col md={12}>
+                  <h4>{viewCampaign.name}</h4>
+                  <p className="text-muted">{viewCampaign.description || 'No description provided'}</p>
+                </Col>
+              </Row>
+
+              <Row className="mb-4">
+                <Col md={6}>
+                  <Card className="h-100">
+                    <Card.Header>Campaign Info</Card.Header>
+                    <Card.Body>
+                      <p className="mb-2"><strong>Brand:</strong> {viewCampaign.brand?.name}</p>
+                      <p className="mb-2"><strong>Start Date:</strong> {viewCampaign.startDate ? new Date(viewCampaign.startDate).toLocaleDateString() : '-'}</p>
+                      <p className="mb-2"><strong>End Date:</strong> {viewCampaign.endDate ? new Date(viewCampaign.endDate).toLocaleDateString() : '-'}</p>
+                      <p className="mb-0"><strong>Budget:</strong> {(() => {
+                        const v = viewCampaign.estimatedBudget;
+                        if (v === null || v === undefined) return '—';
+                        const num = Number(v);
+                        if (!Number.isFinite(num)) return String(v);
+                        return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(num);
+                      })()}</p>
+                    </Card.Body>
+                  </Card>
+                </Col>
+                <Col md={6}>
+                  <Card className="h-100">
+                    <Card.Header>Deliverables</Card.Header>
+                    <Card.Body>
+                      {(() => {
+                         let list = [];
+                         if (typeof viewCampaign.deliverables === 'string') {
+                           list = viewCampaign.deliverables.split(',').map(s => s.trim()).filter(Boolean);
+                         } else if (typeof viewCampaign.deliverables === 'object' && viewCampaign.deliverables !== null) {
+                           list = Object.entries(viewCampaign.deliverables)
+                             .filter(([_, enabled]) => enabled)
+                             .map(([key]) => key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()));
+                         }
+                         
+                         if (list.length > 0) {
+                           return (
+                             <ul className="list-unstyled mb-0 d-flex flex-wrap gap-2">
+                               {list.map((item, idx) => (
+                                 <li key={idx}>
+                                   <Badge bg="info" className="text-dark">{item}</Badge>
+                                 </li>
+                               ))}
+                             </ul>
+                           );
+                         }
+                         return <p className="text-muted mb-0">No deliverables specified</p>;
+                      })()}
+                    </Card.Body>
+                  </Card>
+                </Col>
+              </Row>
+            </div>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setViewCampaign(null)}>
+            Close
+          </Button>
+          {viewCampaign && (
+             <>
+                {viewCampaign.status !== 'accepted' && (
+                  <Button
+                    variant="success"
+                    onClick={() => {
+                      respondInvite(viewCampaign.id, 'accepted');
+                      setViewCampaign(null);
+                    }}
+                  >
+                    Accept
+                  </Button>
+                )}
+                {viewCampaign.status !== 'declined' && (
+                  <Button
+                    variant="outline-danger"
+                    onClick={() => {
+                      respondInvite(viewCampaign.id, 'declined');
+                      setViewCampaign(null);
+                    }}
+                  >
+                    Decline
+                  </Button>
+                )}
+             </>
+          )}
+        </Modal.Footer>
+      </Modal>
 
       {/* Connection Modal */}
       <Modal 

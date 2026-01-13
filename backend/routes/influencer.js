@@ -77,7 +77,7 @@ router.get('/campaigns/invites', authMiddleware, requireRole(['influencer', 'ugc
 });
 
 // Influencer: respond to a campaign invite (accept/decline)
-router.post('/campaigns/:id/respond', authMiddleware, requireRole('influencer'), async (req, res) => {
+router.post('/campaigns/:id/respond', authMiddleware, requireRole(['influencer', 'ugc_creator']), async (req, res) => {
   try {
     const { id } = req.params;
     const { status } = req.body;

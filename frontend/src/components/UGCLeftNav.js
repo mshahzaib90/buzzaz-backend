@@ -101,6 +101,12 @@ const UGCLeftNav = ({ activeKey, onSelect, user, profile }) => {
             </Nav.Link>
           </Nav.Item>
           <Nav.Item>
+            <Nav.Link eventKey="campaigns" className="d-flex align-items-center" onClick={() => onSelect && onSelect('campaigns')}>
+              <i className="bi bi-megaphone me-2"></i>
+              <span>Campaign Invites</span>
+            </Nav.Link>
+          </Nav.Item>
+          <Nav.Item>
             <Nav.Link eventKey="instagram" className="d-flex align-items-center">
               <i className="bi bi-instagram me-2"></i>
               <span>Instagram</span>

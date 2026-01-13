@@ -201,6 +201,21 @@ const BrandDashboard = () => {
     fetchCampaigns();
   }, [fetchInfluencers, fetchFilterOptions, fetchCampaigns]);
 
+  // Poll acceptance status while campaign modal is open
+  useEffect(() => {
+    if (!viewCampaign?.id) return;
+    const id = viewCampaign.id;
+    const t = setInterval(async () => {
+      try {
+        const res = await api.get('/user/campaigns');
+        const updated = (res.data?.campaigns || []).find(c => c.id === id);
+        if (updated) setViewCampaign(updated);
+      } catch (e) {
+        // ignore transient errors
+      }
+    }, 5000);
+    return () => clearInterval(t);
+  }, [viewCampaign?.id]);
   useEffect(() => {
     let filtered = [...influencers];
 
@@ -1176,9 +1191,19 @@ const BrandDashboard = () => {
                             </Badge>
                           </td>
                           <td>
-                            <Badge bg={p.isActive ? 'success' : 'secondary'}>
-                              {p.isActive ? 'Active' : 'Inactive'}
-                            </Badge>
+                            {(() => {
+                              const s = (p.status || '').toLowerCase();
+                              if (!s || s === 'pending') {
+                                return <Badge bg="warning" text="dark">Pending</Badge>;
+                              }
+                              if (s === 'accepted') {
+                                return <Badge bg="success">Accepted</Badge>;
+                              }
+                              if (s === 'declined') {
+                                return <Badge bg="danger">Declined</Badge>;
+                              }
+                              return <Badge bg="secondary">Unknown</Badge>;
+                            })()}
                           </td>
                           <td>
                             {id ? (

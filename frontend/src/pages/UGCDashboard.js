@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Container, Row, Col, Card, Tab, Button, Alert, Spinner, Badge, Form, Modal, Carousel } from 'react-bootstrap';
+import { Container, Row, Col, Card, Tab, Button, Alert, Spinner, Badge, Form, Modal, Carousel, Table } from 'react-bootstrap';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { ugcCreatorAPI } from '../api/ugcAPI';
-import api from '../services/api';
+import api, { influencerAPI } from '../services/api';
 import { ResponsiveContainer, ComposedChart, Area, Line, CartesianGrid, XAxis, YAxis, Tooltip } from 'recharts';
 import { SiTiktok } from 'react-icons/si';
 import '../styles/dashboard.css';
@@ -60,6 +60,44 @@ const UGCDashboard = () => {
   const [savingTikTok, setSavingTikTok] = useState(false);
   
   const { user } = useAuth();
+
+  // Campaign invites
+  const [invites, setInvites] = useState([]);
+  const [invitesLoading, setInvitesLoading] = useState(false);
+  const [invitesError, setInvitesError] = useState('');
+  const [viewCampaign, setViewCampaign] = useState(null);
+
+  const fetchInvites = useCallback(async () => {
+    try {
+      setInvitesLoading(true);
+      setInvitesError('');
+      const res = await influencerAPI.getCampaignInvites();
+      setInvites(res.data?.invites || []);
+    } catch (err) {
+      console.error('Error fetching campaign invites:', err);
+      setInvitesError(err.response?.data?.message || err.message || 'Failed to load invites');
+    } finally {
+      setInvitesLoading(false);
+    }
+  }, []);
+
+  const respondInvite = async (campaignId, status) => {
+    try {
+      await influencerAPI.respondCampaignInvite(campaignId, status);
+      setInvites((prev) => prev.map(i => i.id === campaignId ? { ...i, status } : i));
+    } catch (err) {
+      console.error('Error responding to invite:', err);
+      setSuccess('');
+      setError(err.response?.data?.message || err.message || 'Failed to update invite');
+    }
+  };
+
+  useEffect(() => {
+    // Load campaign invites when user switches to Campaigns tab
+    if (activeTab === 'campaigns' && user?.uid) {
+      fetchInvites();
+    }
+  }, [activeTab, user?.uid, fetchInvites]);
 
   // Define fetchDetailedYoutubeData early and memoize to avoid use-before-init
   const fetchDetailedYoutubeData = useCallback(async () => {
@@ -1399,6 +1437,98 @@ const UGCDashboard = () => {
                 </Card>
               </Tab.Pane>
 
+              <Tab.Pane eventKey="campaigns">
+                <Card>
+                  <Card.Header className="d-flex justify-content-between align-items-center">
+                    <h5 className="mb-0">Campaign Invites</h5>
+                  </Card.Header>
+                  <Card.Body className="p-0">
+                    {invitesLoading ? (
+                      <div className="text-center py-4">
+                        <Spinner animation="border" size="sm" />
+                      </div>
+                    ) : invitesError ? (
+                      <Alert variant="danger" className="m-3">
+                        <i className="bi bi-exclamation-triangle me-2"></i>
+                        {invitesError}
+                      </Alert>
+                    ) : invites.length === 0 ? (
+                      <div className="text-center py-5">
+                        <p className="text-muted mb-0">No campaign invites yet</p>
+                      </div>
+                    ) : (
+                      <Table responsive hover className="mb-0">
+                        <thead className="table-light">
+                          <tr>
+                            <th>Campaign</th>
+                            <th>Brand</th>
+                            <th>Duration</th>
+                            <th>Budget</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {invites.map(inv => (
+                            <tr key={inv.id}>
+                              <td>
+                                <div className="fw-semibold">{inv.name}</div>
+                                <small className="text-muted">{inv.description || '—'}</small>
+                              </td>
+                              <td>{inv.brand?.name || '—'}</td>
+                              <td>
+                                {inv.startDate ? new Date(inv.startDate).toLocaleDateString() : '—'} - {inv.endDate ? new Date(inv.endDate).toLocaleDateString() : '—'}
+                              </td>
+                              <td>
+                                {(() => {
+                                  const v = inv.estimatedBudget;
+                                  if (v === null || v === undefined) return '—';
+                                  const num = Number(v);
+                                  if (!Number.isFinite(num)) return String(v);
+                                  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(num);
+                                })()}
+                              </td>
+                              <td>
+                                {inv.status === 'accepted' && <span className="badge bg-success">Accepted</span>}
+                                {inv.status === 'declined' && <span className="badge bg-danger">Declined</span>}
+                                {(!inv.status || inv.status === 'pending') && <span className="badge bg-warning text-dark">Pending</span>}
+                              </td>
+                              <td className="d-flex gap-2">
+                                <Button
+                                  variant="outline-info"
+                                  size="sm"
+                                  onClick={() => setViewCampaign(inv)}
+                                >
+                                  View
+                                </Button>
+                                {inv.status !== 'accepted' && (
+                                  <Button
+                                    variant="success"
+                                    size="sm"
+                                    onClick={() => respondInvite(inv.id, 'accepted')}
+                                  >
+                                    Accept
+                                  </Button>
+                                )}
+                                {inv.status !== 'declined' && (
+                                  <Button
+                                    variant="outline-danger"
+                                    size="sm"
+                                    onClick={() => respondInvite(inv.id, 'declined')}
+                                  >
+                                    Decline
+                                  </Button>
+                                )}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </Table>
+                    )}
+                  </Card.Body>
+                </Card>
+              </Tab.Pane>
+
               <Tab.Pane eventKey="instagram">
                 <Card>
                   <Card.Header className="d-flex align-items-center justify-content-between">
@@ -1937,6 +2067,106 @@ const UGCDashboard = () => {
               </Button>
             </div>
           </div>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Campaign Details Modal */}
+      <Modal show={!!viewCampaign} onHide={() => setViewCampaign(null)} size="lg" centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Campaign Details</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {viewCampaign && (
+            <div className="campaign-details">
+              <Row className="mb-4">
+                <Col md={12}>
+                  <h4>{viewCampaign.name}</h4>
+                  <p className="text-muted">{viewCampaign.description || 'No description provided'}</p>
+                </Col>
+              </Row>
+
+              <Row className="mb-4">
+                <Col md={6}>
+                  <Card className="h-100">
+                    <Card.Header>Campaign Info</Card.Header>
+                    <Card.Body>
+                      <p className="mb-2"><strong>Brand:</strong> {viewCampaign.brand?.name}</p>
+                      <p className="mb-2"><strong>Start Date:</strong> {viewCampaign.startDate ? new Date(viewCampaign.startDate).toLocaleDateString() : '-'}</p>
+                      <p className="mb-2"><strong>End Date:</strong> {viewCampaign.endDate ? new Date(viewCampaign.endDate).toLocaleDateString() : '-'}</p>
+                      <p className="mb-0"><strong>Budget:</strong> {(() => {
+                        const v = viewCampaign.estimatedBudget;
+                        if (v === null || v === undefined) return '—';
+                        const num = Number(v);
+                        if (!Number.isFinite(num)) return String(v);
+                        return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(num);
+                      })()}</p>
+                    </Card.Body>
+                  </Card>
+                </Col>
+                <Col md={6}>
+                  <Card className="h-100">
+                    <Card.Header>Deliverables</Card.Header>
+                    <Card.Body>
+                      {(() => {
+                         let list = [];
+                         if (typeof viewCampaign.deliverables === 'string') {
+                           list = viewCampaign.deliverables.split(',').map(s => s.trim()).filter(Boolean);
+                         } else if (typeof viewCampaign.deliverables === 'object' && viewCampaign.deliverables !== null) {
+                           list = Object.entries(viewCampaign.deliverables)
+                             .filter(([_, enabled]) => enabled)
+                             .map(([key]) => key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()));
+                         }
+                         
+                         if (list.length > 0) {
+                           return (
+                             <ul className="list-unstyled mb-0 d-flex flex-wrap gap-2">
+                               {list.map((item, idx) => (
+                                 <li key={idx}>
+                                   <Badge bg="info" className="text-dark">{item}</Badge>
+                                 </li>
+                               ))}
+                             </ul>
+                           );
+                         }
+                         return <p className="text-muted mb-0">No deliverables specified</p>;
+                      })()}
+                    </Card.Body>
+                  </Card>
+                </Col>
+              </Row>
+            </div>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setViewCampaign(null)}>
+            Close
+          </Button>
+          {viewCampaign && (
+             <>
+                {viewCampaign.status !== 'accepted' && (
+                  <Button
+                    variant="success"
+                    onClick={() => {
+                      respondInvite(viewCampaign.id, 'accepted');
+                      setViewCampaign(null);
+                    }}
+                  >
+                    Accept
+                  </Button>
+                )}
+                {viewCampaign.status !== 'declined' && (
+                  <Button
+                    variant="outline-danger"
+                    onClick={() => {
+                      respondInvite(viewCampaign.id, 'declined');
+                      setViewCampaign(null);
+                    }}
+                  >
+                    Decline
+                  </Button>
+                )}
+             </>
+          )}
         </Modal.Footer>
       </Modal>
 
