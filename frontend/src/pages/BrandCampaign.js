@@ -1,5 +1,5 @@
 import React from 'react';
-import { Container, Row, Col, Button, InputGroup, Form, Spinner, Table } from 'react-bootstrap';
+import { Container, Row, Col, Button, InputGroup, Form, Spinner, Table, Modal } from 'react-bootstrap';
 import api from '../services/api';
 import CreateCampaignWizard from '../components/brand/CreateCampaignWizard';
 
@@ -13,6 +13,7 @@ const BrandCampaign = () => {
   const [selectedDay, setSelectedDay] = React.useState(null);
   const [showCreateModal, setShowCreateModal] = React.useState(false);
   const [isReorderMode, setIsReorderMode] = React.useState(false);
+  const [viewCampaign, setViewCampaign] = React.useState(null);
 
   const [draggedIndex, setDraggedIndex] = React.useState(null);
 
@@ -415,6 +416,9 @@ const BrandCampaign = () => {
                         <th style={{borderBottom: 'none', color: '#64748b', fontSize: '0.75rem', fontWeight: '600', textTransform: 'uppercase', padding: '16px'}}>
                             STATUS
                         </th>
+                        <th style={{borderBottom: 'none', color: '#64748b', fontSize: '0.75rem', fontWeight: '600', textTransform: 'uppercase', padding: '16px'}}>
+                            ACTIONS
+                        </th>
                       </tr>
                     </thead>
                     <tbody>
@@ -457,12 +461,22 @@ const BrandCampaign = () => {
                                   <i className="bi bi-chevron-down small text-muted ms-1"></i>
                                 </div>
                               </td>
+                              <td style={{padding: '16px'}}>
+                                <Button 
+                                  variant="outline-info" 
+                                  size="sm" 
+                                  onClick={() => setViewCampaign(c)}
+                                  style={{ borderRadius: '10px' }}
+                                >
+                                  View
+                                </Button>
+                              </td>
                             </tr>
                           );
                         })
                       ) : (
                         <tr>
-                          <td colSpan="7" className="text-center py-5 text-muted">No campaigns found</td>
+                          <td colSpan="8" className="text-center py-5 text-muted">No campaigns found</td>
                         </tr>
                       )}
                     </tbody>
@@ -532,6 +546,95 @@ const BrandCampaign = () => {
         </Col>
       </Row>
     </Container>
+    {/* View Campaign Modal */}
+    <Modal show={!!viewCampaign} onHide={() => setViewCampaign(null)} size="lg">
+      <Modal.Header closeButton>
+        <Modal.Title>Campaign Details</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        {viewCampaign && (
+          <>
+            <h5 className="mb-3 text-primary">{viewCampaign.name}</h5>
+            <Row className="mb-4">
+              <Col md={6}>
+                <div className="mb-2">
+                    <small className="text-muted d-block">Duration</small>
+                    <span>
+                        {viewCampaign.startDate ? new Date(viewCampaign.startDate).toLocaleDateString() : '-'} - {viewCampaign.endDate ? new Date(viewCampaign.endDate).toLocaleDateString() : '-'}
+                    </span>
+                </div>
+              </Col>
+              <Col md={6}>
+                <div className="mb-2">
+                    <small className="text-muted d-block">Estimated Budget</small>
+                    <span className="fw-bold text-success">
+                        {(() => {
+                          const v = viewCampaign.estimatedBudget ?? viewCampaign.budget;
+                          const hasValue = v !== null && v !== undefined && String(v).trim?.() !== '';
+                          if (!hasValue) return 'N/A';
+                          const num = Number(v);
+                          if (!Number.isFinite(num)) return String(v);
+                          return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(num);
+                        })()}
+                    </span>
+                </div>
+              </Col>
+            </Row>
+
+            <div className="mb-4">
+                <h6 className="fw-bold">Deliverables</h6>
+                <div className="p-3 bg-light rounded border">
+                    {viewCampaign.deliverables ? (
+                        <p className="mb-0" style={{ whiteSpace: 'pre-wrap' }}>{viewCampaign.deliverables}</p>
+                    ) : (
+                        <span className="text-muted fst-italic">No deliverables specified</span>
+                    )}
+                </div>
+            </div>
+
+            <div className="mb-4">
+                <h6 className="fw-bold">Description</h6>
+                <p className="text-muted" style={{ whiteSpace: 'pre-wrap' }}>
+                    {viewCampaign.description || 'No description provided.'}
+                </p>
+            </div>
+
+            <div>
+                <h6 className="fw-bold mb-3">Selected Influencers {(Array.isArray(viewCampaign.participantDetails) ? `(${viewCampaign.participantDetails.length})` : '')}</h6>
+                {Array.isArray(viewCampaign.participantDetails) && viewCampaign.participantDetails.length > 0 ? (
+                    <Row className="g-3">
+                        {viewCampaign.participantDetails.map(p => (
+                            <Col key={p.id || p.uid || p.email} md={6} lg={4}>
+                                <div className="d-flex align-items-center p-2 border rounded bg-white shadow-sm h-100">
+                                    <img 
+                                        src={p.avatar || `https://i.pravatar.cc/150?u=${p.id || p.uid || p.email}`} 
+                                        alt={p.name || p.displayName || p.fullName || 'Creator'}
+                                        style={{ width: 40, height: 40, borderRadius: '50%', objectFit: 'cover' }}
+                                        className="me-3"
+                                        onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                                    />
+                                    <div className="overflow-hidden">
+                                        <div className="fw-bold text-truncate">{p.name || p.displayName || p.fullName || p.email}</div>
+                                        <small className="text-muted text-capitalize d-block">{(p.role || '').replace('_', ' ')}</small>
+                                    </div>
+                                </div>
+                            </Col>
+                        ))}
+                    </Row>
+                ) : (
+                    <div className="text-center p-4 bg-light rounded border border-dashed">
+                        <i className="bi bi-people text-muted mb-2" style={{ fontSize: '1.5rem' }}></i>
+                        <p className="text-muted mb-0">No influencers selected for this campaign.</p>
+                    </div>
+                )}
+            </div>
+          </>
+        )}
+      </Modal.Body>
+      <Modal.Footer>
+        <Button variant="secondary" onClick={() => setViewCampaign(null)}>Close</Button>
+      </Modal.Footer>
+    </Modal>
     </div>
   );
 };

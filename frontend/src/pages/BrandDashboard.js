@@ -978,86 +978,237 @@ const BrandDashboard = () => {
       </Modal.Header>
       <Modal.Body>
         {viewCampaign && (
-          <>
-            <h5 className="mb-3 text-primary">{viewCampaign.name}</h5>
+          <div className="campaign-details">
             <Row className="mb-4">
-              <Col md={6}>
-                <div className="mb-2">
-                    <small className="text-muted d-block">Duration</small>
-                    <span>
-                        {new Date(viewCampaign.startDate).toLocaleDateString()} - {new Date(viewCampaign.endDate).toLocaleDateString()}
-                    </span>
-                </div>
-              </Col>
-              <Col md={6}>
-                <div className="mb-2">
-                    <small className="text-muted d-block">Estimated Budget</small>
-                    <span className="fw-bold text-success">
-                        {(() => {
-                          const v = viewCampaign.estimatedBudget;
-                          const hasValue = v !== null && v !== undefined && String(v).trim() !== '';
-                          if (!hasValue) return 'N/A';
-                          const num = Number(v);
-                          if (!Number.isFinite(num)) return String(v);
-                          return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(num);
-                        })()}
-                    </span>
-                </div>
+              <Col md={12}>
+                <h4>{viewCampaign.name}</h4>
+                <p className="text-muted">{viewCampaign.description || 'No description provided'}</p>
               </Col>
             </Row>
 
-            <div className="mb-4">
-                <h6 className="fw-bold">Deliverables</h6>
-                <div className="p-3 bg-light rounded border">
-                    {viewCampaign.deliverables ? (
-                        <p className="mb-0" style={{ whiteSpace: 'pre-wrap' }}>{viewCampaign.deliverables}</p>
-                    ) : (
-                        <span className="text-muted fst-italic">No deliverables specified</span>
-                    )}
-                </div>
-            </div>
+            <Row className="mb-4">
+              <Col md={6}>
+                <Card>
+                  <Card.Header>Campaign Info</Card.Header>
+                  <Card.Body>
+                    <p><strong>Start Date:</strong> {viewCampaign.startDate ? new Date(viewCampaign.startDate).toLocaleDateString() : '-'}</p>
+                    <p><strong>End Date:</strong> {viewCampaign.endDate ? new Date(viewCampaign.endDate).toLocaleDateString() : '-'}</p>
+                    <p><strong>Budget:</strong> {(() => {
+                      const v = viewCampaign.estimatedBudget ?? viewCampaign.budget;
+                      const hasValue = v !== null && v !== undefined && String(v).trim?.() !== '';
+                      if (!hasValue) return 'N/A';
+                      const num = Number(v);
+                      if (!Number.isFinite(num)) return String(v);
+                      return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(num);
+                    })()}</p>
+                    <p><strong>Created By:</strong> {viewCampaign.createdByName || viewCampaign.createdByEmail || viewCampaign.createdBy || 'Unknown'}</p>
+                  </Card.Body>
+                </Card>
+              </Col>
+              <Col md={6}>
+                <Card>
+                  <Card.Header>Deliverables</Card.Header>
+                  <Card.Body>
+                    {(() => {
+                      const m = viewCampaign.metadata || {};
+                      const creatorServices = m.creatorServices || {};
+                      const hasCreatorServices = Object.keys(creatorServices).length > 0;
+                      if (hasCreatorServices) {
+                        const SERVICE_LABELS = {
+                          reelPostPrice: 'Reel',
+                          storyPrice: 'Story',
+                          eventAttendancePrice: 'Event Attendance',
+                          multiplePlatformsPrice: 'Multiple Platforms'
+                        };
+                        return (
+                          <ul className="list-unstyled mb-0">
+                            {Object.entries(creatorServices).map(([uid, services]) => {
+                              const details = Array.isArray(viewCampaign.participantDetails) ? viewCampaign.participantDetails.find(p => (p.uid || p.id || p.email) === uid) : null;
+                              const name = details ? (details.name || details.displayName || details.fullName || details.email) : uid;
+                              const serviceList = Array.isArray(services) ? services : [];
+                              if (serviceList.length === 0) return null;
+                              return (
+                                <li key={uid} className="mb-3">
+                                  <div className="fw-bold mb-1">{name}</div>
+                                  <div className="d-flex flex-wrap gap-1">
+                                    {serviceList.map((sKey, idx) => (
+                                      <Badge key={idx} bg="info" className="text-dark">
+                                        {SERVICE_LABELS[sKey] || sKey.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
+                                      </Badge>
+                                    ))}
+                                  </div>
+                                </li>
+                              );
+                            })}
+                          </ul>
+                        );
+                      }
+                      let list = [];
+                      if (typeof viewCampaign.deliverables === 'string') {
+                        list = viewCampaign.deliverables.split(',').map(s => s.trim()).filter(Boolean);
+                      } else if (typeof viewCampaign.deliverables === 'object' && viewCampaign.deliverables !== null) {
+                        list = Object.entries(viewCampaign.deliverables)
+                          .filter(([_, enabled]) => enabled)
+                          .map(([key]) => key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()));
+                      }
+                      if (list.length > 0) {
+                        return (
+                          <ul className="list-unstyled mb-0">
+                            {list.map((item, idx) => (
+                              <li key={idx} className="mb-1">
+                                <Badge bg="info" className="text-dark">{item}</Badge>
+                              </li>
+                            ))}
+                          </ul>
+                        );
+                      }
+                      return <p className="text-muted">No deliverables specified</p>;
+                    })()}
+                  </Card.Body>
+                </Card>
+              </Col>
+            </Row>
 
-            <div className="mb-4">
-                <h6 className="fw-bold">Description</h6>
-                <p className="text-muted" style={{ whiteSpace: 'pre-wrap' }}>
-                    {viewCampaign.description || 'No description provided.'}
-                </p>
-            </div>
+            <Row className="mb-4">
+              <Col md={6}>
+                <Card>
+                  <Card.Header>Targeting</Card.Header>
+                  <Card.Body>
+                    {(() => {
+                      const m = viewCampaign.metadata || {};
+                      const a = m.audience || {};
+                      const items = [
+                        ['Location', a.location],
+                        ['Gender', a.gender],
+                        ['Age Range', (a.ageMin && a.ageMax) ? `${a.ageMin}-${a.ageMax}` : null],
+                        ['Interests', Array.isArray(a.interests) ? a.interests.join(', ') : a.interests],
+                        ['Goal', a.goal],
+                      ].filter(([, v]) => v);
+                      if (items.length === 0) return <p className="text-muted">No targeting specified</p>;
+                      return (
+                        <ul className="list-unstyled mb-0">
+                          {items.map(([k, v]) => (
+                            <li key={k} className="mb-1"><strong>{k}:</strong> {v}</li>
+                          ))}
+                        </ul>
+                      );
+                    })()}
+                  </Card.Body>
+                </Card>
+              </Col>
+              <Col md={6}>
+                <Card>
+                  <Card.Header>Platforms</Card.Header>
+                  <Card.Body>
+                    {(() => {
+                      const m = viewCampaign.metadata || {};
+                      const socials = Array.isArray(m.socials) ? m.socials : [];
+                      const hasData = socials.length > 0 || !!m.workflow;
+                      if (!hasData) return <p className="text-muted">No platforms specified</p>;
+                      return (
+                        <>
+                          {m.workflow && <p><strong>Workflow:</strong> {m.workflow}</p>}
+                          {socials.length > 0 && (
+                            <p><strong>Socials:</strong> {socials.join(', ')}</p>
+                          )}
+                        </>
+                      );
+                    })()}
+                  </Card.Body>
+                </Card>
+              </Col>
+            </Row>
 
-            <div>
-                <h6 className="fw-bold mb-3">Selected Influencers ({viewCampaign.participantDetails?.length || 0})</h6>
-                {viewCampaign.participantDetails?.length > 0 ? (
-                    <Row className="g-3">
-                        {viewCampaign.participantDetails.map(p => (
-                            <Col key={p.id} md={6} lg={4}>
-                                <div className="d-flex align-items-center p-2 border rounded bg-white shadow-sm h-100">
-                                    <img 
-                                        src={p.avatar || `https://i.pravatar.cc/150?u=${p.id}`} 
-                                        alt={p.name}
-                                        style={{ width: 40, height: 40, borderRadius: '50%', objectFit: 'cover' }}
-                                        className="me-3"
-                                        onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                                    />
-                                    <div className="overflow-hidden">
-                                        <div className="fw-bold text-truncate">{p.name}</div>
-                                        <small className="text-muted text-capitalize d-block">{p.role?.replace('_', ' ')}</small>
-                                    </div>
-                                </div>
-                            </Col>
-                        ))}
-                    </Row>
-                ) : (
-                    <div className="text-center p-4 bg-light rounded border border-dashed">
-                        <i className="bi bi-people text-muted mb-2" style={{ fontSize: '1.5rem' }}></i>
-                        <p className="text-muted mb-0">No influencers selected for this campaign.</p>
-                    </div>
-                )}
-            </div>
-          </>
+            <Row className="mb-4">
+              <Col md={12}>
+                <Card>
+                  <Card.Header>Notes</Card.Header>
+                  <Card.Body>
+                    {(() => {
+                      const m = viewCampaign.metadata || {};
+                      const note = m.notes || (m.audience && m.audience.notes);
+                      return note ? <p className="mb-0">{note}</p> : <p className="text-muted mb-0">No notes provided</p>;
+                    })()}
+                  </Card.Body>
+                </Card>
+              </Col>
+            </Row>
+
+            <h5 className="mb-3">Participants {(Array.isArray(viewCampaign.participantDetails) ? `(${viewCampaign.participantDetails.length})` : '')}</h5>
+            {Array.isArray(viewCampaign.participantDetails) && viewCampaign.participantDetails.length > 0 ? (
+              <div className="table-responsive">
+                <Table hover size="sm">
+                  <thead>
+                    <tr>
+                      <th>Creator</th>
+                      <th>Role</th>
+                      <th>Status</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {viewCampaign.participantDetails.map(p => {
+                      const id = p.uid || p.id;
+                      const roleLabel = p.role === 'ugc_creator' ? 'UGC Creator' : 'Influencer';
+                      const profilePath = p.role === 'ugc_creator' ? `/ugc-creator/${id}` : `/influencer/${id}`;
+                      return (
+                        <tr key={id || p.email}>
+                          <td>
+                            <div className="d-flex align-items-center">
+                              {p.avatar && (
+                                <img 
+                                  src={p.avatar} 
+                                  alt="" 
+                                  className="rounded-circle me-2"
+                                  style={{ width: '30px', height: '30px', objectFit: 'cover' }}
+                                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                                />
+                              )}
+                              <div>
+                                <div className="fw-bold">{p.name || p.displayName || p.fullName || p.email}</div>
+                                <small className="text-muted">{p.email}</small>
+                              </div>
+                            </div>
+                          </td>
+                          <td>
+                            <Badge bg={p.role === 'ugc_creator' ? 'warning' : 'info'} text="dark">
+                              {roleLabel}
+                            </Badge>
+                          </td>
+                          <td>
+                            <Badge bg={p.isActive ? 'success' : 'secondary'}>
+                              {p.isActive ? 'Active' : 'Inactive'}
+                            </Badge>
+                          </td>
+                          <td>
+                            {id ? (
+                              <Button 
+                                size="sm" 
+                                variant="outline-primary"
+                                onClick={() => navigate(profilePath)}
+                              >
+                                View Profile
+                              </Button>
+                            ) : (
+                              <span className="text-muted">N/A</span>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </Table>
+              </div>
+            ) : (
+              <p className="text-muted">No participants found for this campaign.</p>
+            )}
+          </div>
         )}
       </Modal.Body>
       <Modal.Footer>
-        <Button variant="secondary" onClick={() => setViewCampaign(null)}>Close</Button>
+        <Button variant="secondary" onClick={() => setViewCampaign(null)}>
+          Close
+        </Button>
       </Modal.Footer>
     </Modal>
     </>

@@ -57,7 +57,7 @@ const Homepage = () => {
           </Link>
 
           {/* Center: Nav links */}
-          <nav className="nav-links" style={{ display: 'flex', alignItems: 'center', gap: '18px', marginLeft: '24px', flex: 1 }}>
+          <nav className="nav-links" style={{ marginLeft: '24px', flex: 1 }}>
             {['Our Platform', 'Solutions', 'Features', 'Resources', 'Pricing'].map((item) => (
               <a key={item} href={`#${item.toLowerCase().replace(/\s+/g, '-')}`}
                  style={{ color: '#000', textDecoration: 'none', fontWeight: 600 }}>
@@ -154,7 +154,7 @@ const Homepage = () => {
         </div>
       </header>
       <div className={mobileOpen ? 'mobile-menu open' : 'mobile-menu'}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+        <div className="container-1200">
           <div style={{ padding: '8px 16px' }}>
             {['Our Platform', 'Solutions', 'Features', 'Resources', 'Pricing'].map((item) => (
               <a key={`m-${item}`} href={`#${item.toLowerCase().replace(/\s+/g, '-')}`} style={{ color: '#0f172a', textDecoration: 'none', fontWeight: 600 }}>
@@ -178,24 +178,12 @@ const Homepage = () => {
       </div>
       {/* Hero section */}
       <section style={{ padding: '24px 16px' }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-          <div className="hero-wrap" style={{
-            background: 'linear-gradient(135deg, #4cc3ff 0%, #2da3f8 100%)',
-            borderRadius: 24,
-            padding: '3rem 68px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '24px',
-            boxShadow: '0 8px 24px rgba(0,0,0,0.12)'
-          }}>
+        <div className="container-1200">
+          <div className="hero-alt">
             <div style={{ flex: 1, color: '#fff' }}>
-              <h1 className="hero-title" style={{
-                fontWeight: 700,
-                fontSize: '42px',
-                lineHeight: 1.1,
-                margin: '0 0 16px'
-              }}>
-                All Your Social Media in One Central Hub
+              <div className="hero-kicker">Social Media Platform</div>
+              <h1 className="hero-title" style={{ marginTop: 8 }}>
+                Manage, Measure and Grow Your Social Presence
               </h1>
               <p style={{
                 fontSize: '16px',
@@ -203,113 +191,61 @@ const Homepage = () => {
                 color: 'rgba(255,255,255,0.92)',
                 margin: '0 0 24px'
               }}>
-                Streamline your workflow: Manage, monitor, and optimize your social media presence with our all-in-one solution
+                One platform to discover creators, run campaigns, and analyze performance across channels.
               </p>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                <a href="#demo" style={{
-                  padding: '10px 18px',
-                  borderRadius: 999,
-                  background: '#fff',
-                  color: '#000',
-                  textDecoration: 'none',
-                  fontWeight: 600,
-                  border: '1px solid rgba(255,255,255,0.7)',
-                  boxShadow: '0 1px 0 rgba(0,0,0,0.08)'
-                }}>Get Your Demo</a>
-                <a href="#trial" style={{
-                  color: '#fff',
-                  textDecoration: 'none',
-                  fontWeight: 700,
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '6px'
-                }}>Start Your Trial</a>
+              <div className="hero-actions">
+                <a href="#demo" style={{ padding: '10px 18px', borderRadius: 999, background: '#fff', color: '#000', textDecoration: 'none', fontWeight: 700 }}>Get a Demo</a>
+                <a className="btn-ghost-light" href="#trial">Start Your Trial</a>
               </div>
-            </div>
-
-            <div style={{ flex: 1, position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              {/* Stylized phone mock */}
-              <div style={{ position: 'relative', transform: 'rotate(-2deg)', marginRight: '24px' }}>
-                <div style={{
-                  width: 260,
-                  height: 470,
-                  borderRadius: 36,
-                  background: '#101216',
-                  boxShadow: '0 18px 40px rgba(0,0,0,0.35)',
-                  padding: '14px',
-                  position: 'relative'
-                }}>
-                  {/* phone notch */}
-                  <div style={{ position: 'absolute', top: 8, left: '50%', transform: 'translateX(-50%)', width: 94, height: 6, background: '#1e222b', borderRadius: 6 }} />
-                  {/* phone screen */}
-                  <div style={{
-                    background: 'linear-gradient(180deg, #f7f9fc 0%, #eef3fb 100%)',
-                    borderRadius: 24,
-                    height: '100%',
-                    overflow: 'hidden',
-                    position: 'relative'
-                  }}>
-                    {/* header card */}
-                    <div style={{ position: 'absolute', top: 18, left: 14, right: 14, background: '#ffffff', borderRadius: 12, boxShadow: '0 6px 18px rgba(0,0,0,0.08)', padding: 10 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <span style={{ width: 26, height: 26, borderRadius: '50%', background: '#4cc3ff' }} />
-                        <div style={{ flex: 1 }}>
-                          <div style={{ fontWeight: 700, fontSize: 12, color: '#0f172a' }}>Diana Williams</div>
-                          <div style={{ fontSize: 10, color: '#64748b' }}>HR @ Wayne Enterprises</div>
-                        </div>
-                      </div>
-                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 8 }}>
-                        {['London', 'BestService', '+ 3 tags'].map((t) => (
-                          <span key={t} style={{ fontSize: 10, background: '#f1f5f9', color: '#0f172a', padding: '4px 7px', borderRadius: 999 }}>{t}</span>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* middle card */}
-                    <div style={{ position: 'absolute', top: 128, left: 14, right: 14, background: '#ffffff', borderRadius: 12, boxShadow: '0 6px 18px rgba(0,0,0,0.08)', padding: 10 }}>
-                      <div style={{ fontWeight: 700, fontSize: 12, color: '#0f172a', marginBottom: 6 }}>Looking for an Expert</div>
-                      <div style={{ fontSize: 11, color: '#334155' }}>B2B SaaS BizDev Who's worked with Channel Partners</div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 8, color: '#64748b', fontSize: 10 }}>
-                        <span>Applied by Alex and 29 others</span>
-                        <span style={{ width: 3, height: 3, borderRadius: '50%', background: '#cbd5e1' }} />
-                        <span>349 views</span>
-                      </div>
-                    </div>
-
-                    {/* chat footer bubble */}
-                    <div style={{ position: 'absolute', bottom: 18, left: 14, right: 14, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                        <span style={{ width: 22, height: 22, borderRadius: '50%', background: '#93c5fd' }} />
-                        <span style={{ fontSize: 11, color: '#0f172a', background: '#ffffff', borderRadius: 999, padding: '5px 9px', boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}>Hey!</span>
-                      </div>
-                      <span style={{ fontSize: 10, color: '#64748b' }}>Nick is the CMO at Intech Inc.</span>
-                    </div>
+              <div className="stat-strip">
+                {[{ v: '200M+', l: 'Creators' }, { v: '70+', l: 'Countries' }, { v: '10K+', l: 'Brands' }, { v: 'A+', l: 'Satisfaction' }].map((s) => (
+                  <div key={s.l} className="stat-item">
+                    <div className="value">{s.v}</div>
+                    <div className="label">{s.l}</div>
                   </div>
-                </div>
+                ))}
               </div>
-
-              {/* Floating overlays around phone */}
-              <div className="phone-overlay" style={{ position: 'absolute', right: -30, top: '18%', background: '#ffffff', borderRadius: 14, padding: '10px 12px', boxShadow: '0 10px 28px rgba(0,0,0,0.18)', display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span style={{ width: 24, height: 24, borderRadius: '50%', background: '#4cc3ff' }} />
-                <span style={{ fontWeight: 600, color: '#0f172a' }}>Hey!</span>
-              </div>
-              
             </div>
+
+            <div />
           </div>
         </div>
       </section>{/* Brands trust row */}
+      <section style={{ padding: '16px 16px' }}>
+        <div className="container-1200">
+          <div className="chips-row">
+            {[
+              { name: 'Instagram', icon: 'bi-instagram' },
+              { name: 'TikTok', icon: 'bi-tiktok' },
+              { name: 'Facebook', icon: 'bi-facebook' },
+              { name: 'YouTube', icon: 'bi-youtube' }
+            ].map((p) => (
+              <span key={p.name} className="platform-chip" style={{ borderColor: '#e2e8f0' }}>
+                <i className={`bi ${p.icon}`} />
+                {p.name}
+              </span>
+            ))}
+          </div>
+          <div className="glass-grid">
+            {[
+              { label: 'Posts Scheduled', value: '342' },
+              { label: 'Avg Engagement', value: '4.8%' },
+              { label: 'Mentions Monitored', value: '12.7k' }
+            ].map((m) => (
+              <div key={m.label} className="glass-card">
+                <div className="label">{m.label}</div>
+                <div className="value">{m.value}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
       <section style={{ padding: '40px 16px' }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto', textAlign: 'center' }}>
+        <div className="container-1200" style={{ textAlign: 'center' }}>
           <div style={{ color: '#0f172a', fontWeight: 700, fontSize: '18px' }}>
             Trusted by Leading Brands in 70+ Countries
           </div>
-          <div className="brands-grid" style={{
-            marginTop: '25px',
-            display: 'grid',
-            gridTemplateColumns: 'repeat(6, 1fr)',
-            gap: 24,
-            alignItems: 'center'
-          }}>
+          <div className="brands-grid" style={{ marginTop: '25px' }}>
             {['OMG', 'SAMSUNG', 'Pernod Ricard', 'WPP', 'nota bene', 'Kellogg'].map((name) => (
               <div key={name} style={{
                 color: '#b3bcc7',
@@ -346,12 +282,8 @@ const Homepage = () => {
 
       {/* Solutions cards section */}
       <section style={{ padding: '40px 16px' }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-          <div className="home-features-grid" style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(3, 1fr)',
-            gap: 24
-          }}>
+        <div className="container-1200">
+          <div className="features-grid-alt">
             {[{
               title: 'Influencer Marketing',
               desc: 'Discover influencers and manage end-to-end campaigns at scale.'
@@ -362,28 +294,22 @@ const Homepage = () => {
               title: 'Social Listening',
               desc: 'Understand your consumers, your brand, your market and your competitors.'
             }].map((card, idx) => (
-              <div key={card.title} className="solution-card" style={{
-                background: '#ffffff',
-                borderRadius: 24,
-                padding: 55,
-                boxShadow: '0 24px 40px rgba(0,0,0,0.06)',
-                border: '1px solid #f1f5f9'
-              }}>
-                {/* Icon blob + placeholder icon */}
-                <div style={{ position: 'relative', height: 40, marginBottom: 12 }}>
-                  <span style={{
-                    position: 'absolute', left: 0, top: 0,
-                    width: 42, height: 28, borderRadius: 16,
-                    background: 'rgba(76,195,255,0.25)'
-                  }} />
-                  <span style={{
-                    position: 'absolute', left: 12, top: 6,
-                    width: 26, height: 26, borderRadius: '50%',
-                    background: '#4cc3ff'
-                  }} />
+              <div key={card.title} className="feature-card">
+                <div className="feature-icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
+                    <rect x="3" y="3" width="5" height="5" rx="1.5" fill="currentColor" />
+                    <rect x="10" y="3" width="5" height="5" rx="1.5" fill="currentColor" />
+                    <rect x="17" y="3" width="4" height="5" rx="1.5" fill="currentColor" />
+                    <rect x="3" y="10" width="5" height="5" rx="1.5" fill="currentColor" />
+                    <rect x="10" y="10" width="5" height="5" rx="1.5" fill="currentColor" />
+                    <rect x="17" y="10" width="4" height="5" rx="1.5" fill="currentColor" />
+                    <rect x="3" y="17" width="5" height="4" rx="1.5" fill="currentColor" />
+                    <rect x="10" y="17" width="5" height="4" rx="1.5" fill="currentColor" />
+                    <rect x="17" y="17" width="4" height="4" rx="1.5" fill="currentColor" />
+                  </svg>
                 </div>
-                <div style={{ fontWeight: 700, fontSize: '22px', color: '#0f172a' }}>{card.title}</div>
-                <p style={{ marginTop: 10, color: '#334155', lineHeight: 1.7 }}>
+                <div className="title">{card.title}</div>
+                <p className="desc">
                   {card.desc}
                 </p>
                 <button type="button" style={{
@@ -401,10 +327,7 @@ const Homepage = () => {
 
       {/* Discover section (two-column layout) */}
       <section style={{ padding: '60px 16px' }}>
-        <div className="home-two-col" style={{
-          maxWidth: '1200px', margin: '0 auto',
-          display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: 40, alignItems: 'center'
-        }}>
+        <div className="home-two-col container-1200">
           <div style={{ position: 'relative' }}>
             <div style={{
               background: 'linear-gradient(90deg, rgba(76,195,255,0.20) 0%, rgba(45,163,248,0.18) 100%)',
@@ -503,10 +426,7 @@ const Homepage = () => {
       
       {/* IRM section (two-column layout) */}
       <section style={{ padding: '60px 16px' }}>
-        <div className="home-two-col" style={{
-          maxWidth: '1200px', margin: '0 auto',
-          display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: 40, alignItems: 'center'
-        }}>
+        <div className="home-two-col container-1200">
           {/* Left: copy */}
           <div>
             <div style={{ fontSize: 12, fontWeight: 700, color: '#6b7280', letterSpacing: '1px' }}>INFLUENCER RELATIONSHIP MANAGEMENT</div>
@@ -528,7 +448,7 @@ const Homepage = () => {
               background: 'linear-gradient(90deg, rgba(76,195,255,0.18) 0%, rgba(45,163,248,0.16) 100%)',
               borderRadius: 24, padding: 16, boxShadow: '0 24px 40px rgba(0,0,0,0.06)'
             }}>
-              <div className="collage-grid-2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              <div className="collage-grid-2">
                 {/* Creator list card */}
                 <div style={{ background: '#ffffff', borderRadius: 16, padding: 12, boxShadow: '0 8px 20px rgba(0,0,0,0.08)' }}>
                   {[ 'George Aminoff', 'Marilyn Donin', 'Mira Calzoni', 'Cristofer Madsen', 'Jakob Dias', 'Adison Carder' ].map((name) => (
@@ -548,7 +468,7 @@ const Homepage = () => {
 
                 {/* Stats + email card */}
                 <div style={{ position: 'relative', background: '#ffffff', borderRadius: 16, padding: 12, boxShadow: '0 8px 20px rgba(0,0,0,0.08)' }}>
-                  <div className="collage-grid-2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                  <div className="collage-grid-2">
                     <div style={{ background: '#f8fafc', borderRadius: 12, padding: 10 }}>
                       <div style={{ fontSize: 11, color: '#64748b', marginBottom: 6 }}>Audience Ages</div>
                       <div style={{ height: 90, background: 'linear-gradient(180deg, #e5f2ff 0%, #fff 100%)', borderRadius: 10 }} />
@@ -558,7 +478,7 @@ const Homepage = () => {
                       <div style={{ height: 90, background: 'linear-gradient(180deg, #f3e8ff 0%, #fff 100%)', borderRadius: 10 }} />
                     </div>
                   </div>
-                  <div className="collage-grid-2" style={{ marginTop: 12, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                  <div className="collage-grid-2" style={{ marginTop: 12 }}>
                     <div style={{ background: '#f8fafc', borderRadius: 12, padding: 10 }}>
                       <div style={{ fontSize: 11, color: '#64748b', marginBottom: 6 }}>Average Activity Split</div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -586,17 +506,14 @@ const Homepage = () => {
         </div>
       </section>{/* Campaign section (two-column layout) */}
       <section style={{ padding: '60px 16px' }}>
-        <div className="home-two-col" style={{
-          maxWidth: '1200px', margin: '0 auto',
-          display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: 40, alignItems: 'center'
-        }}>
+        <div className="home-two-col container-1200">
           {/* Left: UI collage */}
           <div>
             <div style={{
               background: 'linear-gradient(90deg, rgba(76,195,255,0.18) 0%, rgba(45,163,248,0.16) 100%)',
               borderRadius: 24, padding: 16, boxShadow: '0 24px 40px rgba(0,0,0,0.06)'
             }}>
-              <div className="collage-grid-3" style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr 1fr', gap: 12, alignItems: 'stretch' }}>
+              <div className="collage-grid-3">
                 {/* Large tile */}
                 <div style={{ background: 'linear-gradient(180deg, #f1f5f9 0%, #ffffff 100%)', borderRadius: 16, height: 160, overflow: 'hidden' }}>
                   <img
@@ -637,7 +554,9 @@ const Homepage = () => {
                     style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 16 }}
                   />
                   <button style={{ position: 'absolute', right: 10, top: 10, width: 32, height: 32, border: 'none', borderRadius: 999, background: '#4cc3ff', color: '#fff', boxShadow: '0 10px 24px rgba(76,195,255,0.48)', cursor: 'pointer' }}>
-                    <i className="bi bi-send-fill" />
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style={{ transform: 'translateX(1px)' }}>
+                      <path d="M2 12L22 3 12 21 10.5 13.5 2 12Z" />
+                    </svg>
                   </button>
                 </div>
 
@@ -696,16 +615,11 @@ const Homepage = () => {
 
       {/* Team-loving platform banner */}
       <section style={{ padding: '60px 16px', background: 'rgba(76,195,255,0.12)', marginBottom: '60px' }}>
-        <div className="home-two-col" style={{
-          maxWidth: '1200px', margin: '0 auto',
-          display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: 40, alignItems: 'center'
-        }}>
+        <div className="home-two-col container-1200">
           {/* Left: overlapped visual cards */}
           <div style={{ position: 'relative', height: 340 }}>
             {/* Map card */}
             <div className="map-card" style={{
-              position: 'absolute', left: 0, top: 28,
-              width: 430, height: 260,
               background: '#ffffff', borderRadius: 24,
               boxShadow: '0 24px 40px rgba(0,0,0,0.06)', padding: 16,
               display: 'flex', alignItems: 'center', justifyContent: 'center'
@@ -781,8 +695,7 @@ const Homepage = () => {
 
             {/* Calendar card */}
             <div className="calendar-card" style={{
-              position: 'absolute', left: 250, top: 0,
-              width: 310, height: 320, borderRadius: 24,
+              borderRadius: 24,
               background: 'linear-gradient(135deg, #4cc3ff 0%, #2da3f8 100%)',
               boxShadow: '0 24px 40px rgba(0,0,0,0.12)', padding: 18,
               color: '#fff'
@@ -894,74 +807,74 @@ const Homepage = () => {
       </section>
 
       {/* Footer */}
-      <footer style={{ background: '#0d0e10', color: '#fff', padding: '60px 16px' }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+      <footer className="footer-dark">
+        <div className="container-1200">
           <div className="footer-grid">
             {/* Brand */}
             <div>
-              <div style={{ display: 'flex', alignItems: 'center', marginBottom: 18 }}>
-                <span style={{ display: 'inline-flex', width: 30, height: 30, borderRadius: '50%', background: '#4cc3ff', color: '#fff', alignItems: 'center', justifyContent: 'center', fontWeight: 800, marginRight: 10 }}>B</span>
+              <div className="footer-brand">
+                <span className="footer-logo">B</span>
                 <span style={{ fontWeight: 800, fontSize: 18 }}>Buzzaz</span>
               </div>
-              <div style={{ color: '#cbd5e1', fontSize: 13, lineHeight: 1.7 }}>The toolkit for influencer marketing and social media engagement.</div>
+              <div className="footer-copy">The toolkit for influencer marketing and social media engagement.</div>
             </div>
 
             {/* Solutions */}
             <div>
-              <div style={{ fontSize: 12, fontWeight: 800, color: '#e5e7eb', letterSpacing: '1px', marginBottom: 12 }}>SOLUTIONS</div>
+              <div className="footer-head">SOLUTIONS</div>
               {['Influencer Marketing', 'Social Media Management', 'Social Listening'].map((t) => (
-                <button key={t} type="button" style={{ display: 'block', color: '#cbd5e1', textDecoration: 'none', marginBottom: 10, background: 'none', border: 'none', padding: 0, cursor: 'pointer', textAlign: 'left' }}>{t}</button>
+                <button key={t} type="button" className="footer-link" style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', textAlign: 'left' }}>{t}</button>
               ))}
             </div>
 
             {/* Our Platform */}
             <div>
-              <div style={{ fontSize: 12, fontWeight: 800, color: '#e5e7eb', letterSpacing: '1px', marginBottom: 12 }}>OUR PLATFORM</div>
+              <div className="footer-head">OUR PLATFORM</div>
               {['Influencer Discover', 'Influencer Relationship', 'Campaign Manager', 'Campaign Reports', 'Social Hub', 'Monitoring'].map((t) => (
-                <button key={t} type="button" style={{ display: 'block', color: '#cbd5e1', textDecoration: 'none', marginBottom: 10, background: 'none', border: 'none', padding: 0, cursor: 'pointer', textAlign: 'left' }}>{t}</button>
+                <button key={t} type="button" className="footer-link" style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', textAlign: 'left' }}>{t}</button>
               ))}
             </div>
 
             {/* Features */}
             <div>
-              <div style={{ fontSize: 12, fontWeight: 800, color: '#e5e7eb', letterSpacing: '1px', marginBottom: 12 }}>FEATURES</div>
+              <div className="footer-head">FEATURES</div>
               {['Find Influencers', 'Analyze Influencers', 'Influencer Database', 'Recruitment', 'Outreach', 'Manage Campaigns', 'Seeding', 'Payments', 'Measure Results', 'Inbox'].map((t) => (
-                <button key={t} type="button" style={{ display: 'block', color: '#cbd5e1', textDecoration: 'none', marginBottom: 10, background: 'none', border: 'none', padding: 0, cursor: 'pointer', textAlign: 'left' }}>{t}</button>
+                <button key={t} type="button" className="footer-link" style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', textAlign: 'left' }}>{t}</button>
               ))}
             </div>
 
             {/* Use Cases */}
             <div>
-              <div style={{ fontSize: 12, fontWeight: 800, color: '#e5e7eb', letterSpacing: '1px', marginBottom: 12 }}>USE CASES</div>
+              <div className="footer-head">USE CASES</div>
               {['Brands', 'Agencies', 'E-Commerce'].map((t) => (
-                <button key={t} type="button" style={{ display: 'block', color: '#cbd5e1', textDecoration: 'none', marginBottom: 10, background: 'none', border: 'none', padding: 0, cursor: 'pointer', textAlign: 'left' }}>{t}</button>
+                <button key={t} type="button" className="footer-link" style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', textAlign: 'left' }}>{t}</button>
               ))}
             </div>
 
             {/* Resources */}
             <div>
-              <div style={{ fontSize: 12, fontWeight: 800, color: '#e5e7eb', letterSpacing: '1px', marginBottom: 12 }}>RESOURCES</div>
+              <div className="footer-head">RESOURCES</div>
               {['Influencer Marketing', 'Blog', 'Knowledge Base', 'Videos', 'Ebooks', 'Guides', 'Case Studies', 'Success Stories', 'Webinars'].map((t) => (
-                <button key={t} type="button" style={{ display: 'block', color: '#cbd5e1', textDecoration: 'none', marginBottom: 10, background: 'none', border: 'none', padding: 0, cursor: 'pointer', textAlign: 'left' }}>{t}</button>
+                <button key={t} type="button" className="footer-link" style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', textAlign: 'left' }}>{t}</button>
               ))}
             </div>
 
             {/* Customers */}
             <div>
-              <div style={{ fontSize: 12, fontWeight: 800, color: '#e5e7eb', letterSpacing: '1px', marginBottom: 12 }}>CUSTOMERS</div>
+              <div className="footer-head">CUSTOMERS</div>
               {['Contact Us', 'Change log', 'Feature requests'].map((t) => (
-                <button key={t} type="button" style={{ display: 'block', color: '#cbd5e1', textDecoration: 'none', marginBottom: 10, background: 'none', border: 'none', padding: 0, cursor: 'pointer', textAlign: 'left' }}>{t}</button>
+                <button key={t} type="button" className="footer-link" style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', textAlign: 'left' }}>{t}</button>
               ))}
             </div>
 
 
           </div>
 
-          <div style={{ marginTop: 30, borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: 16, color: '#9aa3b2', fontSize: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div className="footer-bottom">
             <span>&copy; {new Date().getFullYear()} Buzzaz. All rights reserved.</span>
-            <div style={{ display: 'flex', gap: 16 }}>
-              <button type="button" style={{ color: '#cbd5e1', textDecoration: 'none', background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}>Privacy</button>
-              <button type="button" style={{ color: '#cbd5e1', textDecoration: 'none', background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}>Terms</button>
+            <div className="footer-legal">
+              <button type="button" className="btn-link">Privacy</button>
+              <button type="button" className="btn-link">Terms</button>
             </div>
           </div>
         </div>

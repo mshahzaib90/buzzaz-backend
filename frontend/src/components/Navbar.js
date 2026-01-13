@@ -74,12 +74,16 @@ const Navbar = () => {
                 <Nav.Link as={Link} to="/brand/campaign" className={isActive('/brand/campaign') ? 'active fw-semibold' : ''}>
                   Campaigns
                 </Nav.Link>
-                <Nav.Link as={Link} to="/brand/saved" className={isActive('/brand/saved') ? 'active fw-semibold' : ''}>
-                  Saved
-                </Nav.Link>
-                <Nav.Link as={Link} to="/brand/messages" className={isActive('/brand/messages') ? 'active fw-semibold' : ''}>
-                  Messages
-                </Nav.Link>
+                {location.pathname !== '/brand/campaign' && (
+                  <>
+                    <Nav.Link as={Link} to="/brand/saved" className={isActive('/brand/saved') ? 'active fw-semibold' : ''}>
+                      Saved
+                    </Nav.Link>
+                    <Nav.Link as={Link} to="/brand/messages" className={isActive('/brand/messages') ? 'active fw-semibold' : ''}>
+                      Messages
+                    </Nav.Link>
+                  </>
+                )}
               </>
             )}
           </Nav>
