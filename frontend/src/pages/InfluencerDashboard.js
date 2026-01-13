@@ -181,6 +181,12 @@ const InfluencerDashboard = () => {
     }
   };
 
+  useEffect(() => {
+    // Load campaign invites when user switches to Campaigns tab
+    if (activeTab === 'campaigns' && user?.uid) {
+      fetchInvites();
+    }
+  }, [activeTab, user?.uid, fetchInvites]);
   
 
   const fetchProfile = useCallback(async () => {
