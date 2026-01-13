@@ -84,7 +84,7 @@ const Homepage = () => {
                     Sign up <i className="bi bi-chevron-down" aria-hidden="true"></i>
                   </button>
                   <div style={{
-                    position: 'absolute', top: '110%', right: 0,
+                    position: 'absolute', top: '100%', right: 0,
                     background: '#fff', border: '1px solid #eee', boxShadow: '0 10px 24px rgba(0,0,0,0.08)',
                     borderRadius: 12, padding: 8, minWidth: 220, zIndex: 10,
                     display: signupOpen ? 'block' : 'none'
@@ -119,7 +119,7 @@ const Homepage = () => {
                   <i className="bi bi-chevron-down" aria-hidden="true"></i>
                 </button>
                 <div style={{
-                  position: 'absolute', top: '110%', right: 0,
+                  position: 'absolute', top: '100%', right: 0,
                   background: '#fff', border: '1px solid #eee', boxShadow: '0 10px 24px rgba(0,0,0,0.08)',
                   borderRadius: 12, padding: 8, minWidth: 200, zIndex: 10,
                   display: userDropdownOpen ? 'block' : 'none'

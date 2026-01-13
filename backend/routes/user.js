@@ -209,7 +209,14 @@ router.post('/campaigns', authMiddleware, requireRole('brand'), async (req, res)
           campaigns.forEach(c => {
              const parts = typeof c.participants === 'string' ? JSON.parse(c.participants) : c.participants;
              const ids = Array.isArray(parts) ? parts : (parts?.ids || []);
-             c.participantDetails = ids.map(id => detailsMap[id]).filter(Boolean);
+             const acceptance = (c.metadata && typeof c.metadata === 'object') ? (c.metadata.acceptance || {}) : {};
+             c.participantDetails = ids
+               .map(id => {
+                 const base = detailsMap[id];
+                 if (!base) return null;
+                 return { ...base, status: acceptance[id] || 'pending' };
+               })
+               .filter(Boolean);
           });
         }
     

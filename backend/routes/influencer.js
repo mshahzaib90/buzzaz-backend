@@ -13,6 +13,103 @@ const youtubeService = require('../services/youtubeService');
 
 const router = express.Router();
 
+// Influencer: list campaign invites (where they are selected as participant)
+router.get('/campaigns/invites', authMiddleware, requireRole('influencer'), async (req, res) => {
+  try {
+    // Ensure campaigns table exists
+    await pg.query(`
+      CREATE TABLE IF NOT EXISTS campaigns (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        description TEXT,
+        start_date DATE NOT NULL,
+        end_date DATE NOT NULL,
+        created_by TEXT NOT NULL,
+        participants JSONB NOT NULL,
+        created_at TIMESTAMP DEFAULT NOW(),
+        estimated_budget NUMERIC,
+        deliverables TEXT,
+        metadata JSONB
+      )
+    `);
+    const uid = req.user.uid;
+    const result = await pg.query(
+      `
+      SELECT c.id, c.name, c.description, c.start_date, c.end_date, c.created_by, c.participants, c.created_at, c.estimated_budget, c.deliverables, c.metadata,
+             u.email AS brand_email, u.display_name AS brand_name
+      FROM campaigns c
+      LEFT JOIN users u ON u.uid = c.created_by
+      WHERE EXISTS (
+        SELECT 1
+        FROM jsonb_array_elements_text(c.participants->'ids') AS elem
+        WHERE elem = $1
+      )
+      ORDER BY c.created_at DESC
+      `,
+      [uid]
+    );
+    const invites = result.rows.map(r => {
+      const acceptance = (r.metadata && typeof r.metadata === 'object') ? (r.metadata.acceptance || {}) : {};
+      const status = acceptance[uid] || 'pending';
+      return {
+        id: r.id,
+        name: r.name,
+        description: r.description,
+        startDate: r.start_date,
+        endDate: r.end_date,
+        brand: { id: r.created_by, name: r.brand_name || r.brand_email || 'Unknown Brand', email: r.brand_email || null },
+        estimatedBudget: r.estimated_budget,
+        deliverables: r.deliverables,
+        status
+      };
+    });
+    res.json({ invites });
+  } catch (error) {
+    console.error('List campaign invites error:', error);
+    res.status(500).json({ message: 'Server error while fetching invites' });
+  }
+});
+
+// Influencer: respond to a campaign invite (accept/decline)
+router.post('/campaigns/:id/respond', authMiddleware, requireRole('influencer'), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+    const uid = req.user.uid;
+    if (!['accepted', 'declined'].includes(String(status))) {
+      return res.status(400).json({ message: 'Invalid status. Use accepted or declined.' });
+    }
+    // Ensure campaign exists and influencer is a participant
+    const chk = await pg.query(
+      `
+      SELECT id, metadata, participants
+      FROM campaigns
+      WHERE id = $1
+      `,
+      [id]
+    );
+    if (chk.rowCount === 0) {
+      return res.status(404).json({ message: 'Campaign not found' });
+    }
+    const row = chk.rows[0];
+    const parts = typeof row.participants === 'string' ? JSON.parse(row.participants) : row.participants;
+    const ids = Array.isArray(parts) ? parts : (parts?.ids || []);
+    if (!ids.includes(uid)) {
+      return res.status(403).json({ message: 'You are not a participant of this campaign' });
+    }
+    // Merge acceptance state into metadata JSON
+    const metadata = (row.metadata && typeof row.metadata === 'object') ? row.metadata : {};
+    const acceptance = (metadata.acceptance && typeof metadata.acceptance === 'object') ? metadata.acceptance : {};
+    acceptance[uid] = status;
+    const newMeta = { ...metadata, acceptance };
+    await pg.query('UPDATE campaigns SET metadata = $1 WHERE id = $2', [JSON.stringify(newMeta), id]);
+    res.json({ success: true, campaignId: id, status });
+  } catch (error) {
+    console.error('Respond to campaign invite error:', error);
+    res.status(500).json({ message: 'Server error while responding to invite' });
+  }
+});
+
 router.post('/validate-apify', authMiddleware, requireRole('influencer'), [
   body('instagramUsername').isLength({ min: 1 }).trim(),
 ], async (req, res) => {

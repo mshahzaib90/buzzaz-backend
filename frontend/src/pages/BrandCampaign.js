@@ -615,7 +615,22 @@ const BrandCampaign = () => {
                                     />
                                     <div className="overflow-hidden">
                                         <div className="fw-bold text-truncate">{p.name || p.displayName || p.fullName || p.email}</div>
-                                        <small className="text-muted text-capitalize d-block">{(p.role || '').replace('_', ' ')}</small>
+                                        <div className="d-flex align-items-center gap-2">
+                                          <small className="text-muted text-capitalize">{(p.role || '').replace('_', ' ')}</small>
+                                          {(() => {
+                                            const s = (p.status || '').toLowerCase();
+                                            if (!s || s === 'pending') {
+                                              return <span className="badge bg-warning text-dark">Pending</span>;
+                                            }
+                                            if (s === 'accepted') {
+                                              return <span className="badge bg-success">Accepted</span>;
+                                            }
+                                            if (s === 'declined') {
+                                              return <span className="badge bg-danger">Declined</span>;
+                                            }
+                                            return null;
+                                          })()}
+                                        </div>
                                     </div>
                                 </div>
                             </Col>

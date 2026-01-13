@@ -57,6 +57,10 @@ const InfluencerDashboard = () => {
   const [selectedYtVideo, setSelectedYtVideo] = useState(null);
   // Profile tab: sort option for Recent Video Performance table
   const [profileSortBy, setProfileSortBy] = useState('date_desc');
+  // Campaign invites
+  const [invites, setInvites] = useState([]);
+  const [invitesLoading, setInvitesLoading] = useState(false);
+  const [invitesError, setInvitesError] = useState('');
   
   // Instagram connection modal state
   const [showConnectModal, setShowConnectModal] = useState(false);
@@ -151,6 +155,31 @@ const InfluencerDashboard = () => {
       console.warn('Unable to read user socialConnections for Instagram backfill:', err);
     }
   }, [user?.uid]);
+
+  const fetchInvites = useCallback(async () => {
+    try {
+      setInvitesLoading(true);
+      setInvitesError('');
+      const res = await influencerAPI.getCampaignInvites();
+      setInvites(res.data?.invites || []);
+    } catch (err) {
+      console.error('Error fetching campaign invites:', err);
+      setInvitesError(err.response?.data?.message || err.message || 'Failed to load invites');
+    } finally {
+      setInvitesLoading(false);
+    }
+  }, []);
+
+  const respondInvite = async (campaignId, status) => {
+    try {
+      await influencerAPI.respondCampaignInvite(campaignId, status);
+      setInvites((prev) => prev.map(i => i.id === campaignId ? { ...i, status } : i));
+    } catch (err) {
+      console.error('Error responding to invite:', err);
+      setSuccess('');
+      setError(err.response?.data?.message || err.message || 'Failed to update invite');
+    }
+  };
 
   
 
@@ -884,6 +913,10 @@ const InfluencerDashboard = () => {
                     <Button type="button" className="glass-button mb-2" onClick={() => setActiveTab('chat')}>
                       <i className="bi bi-chat-dots me-2"></i>
                       Messages
+                    </Button>
+                    <Button type="button" className="glass-button mb-2" onClick={() => setActiveTab('campaigns')}>
+                      <i className="bi bi-flag me-2"></i>
+                      Campaigns
                     </Button>
                   </Nav>
                 </div>
@@ -1720,6 +1753,89 @@ const InfluencerDashboard = () => {
               {/* Chat Tab */}
               <Tab.Pane eventKey="chat">
                 <ChatInterface currentUser={user} />
+              </Tab.Pane>
+              {/* Campaign Invites Tab */}
+              <Tab.Pane eventKey="campaigns">
+                <Card>
+                  <Card.Header className="d-flex justify-content-between align-items-center">
+                    <h5 className="mb-0">Campaign Invites</h5>
+                  </Card.Header>
+                  <Card.Body className="p-0">
+                    {invitesLoading ? (
+                      <div className="text-center py-4">
+                        <Spinner animation="border" size="sm" />
+                      </div>
+                    ) : invitesError ? (
+                      <Alert variant="danger" className="m-3">
+                        <i className="bi bi-exclamation-triangle me-2"></i>
+                        {invitesError}
+                      </Alert>
+                    ) : invites.length === 0 ? (
+                      <div className="text-center py-5">
+                        <p className="text-muted mb-0">No campaign invites yet</p>
+                      </div>
+                    ) : (
+                      <Table responsive hover className="mb-0">
+                        <thead className="table-light">
+                          <tr>
+                            <th>Campaign</th>
+                            <th>Brand</th>
+                            <th>Duration</th>
+                            <th>Budget</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {invites.map(inv => (
+                            <tr key={inv.id}>
+                              <td>
+                                <div className="fw-semibold">{inv.name}</div>
+                                <small className="text-muted">{inv.description || '—'}</small>
+                              </td>
+                              <td>{inv.brand?.name || '—'}</td>
+                              <td>
+                                {inv.startDate ? new Date(inv.startDate).toLocaleDateString() : '—'} - {inv.endDate ? new Date(inv.endDate).toLocaleDateString() : '—'}
+                              </td>
+                              <td>
+                                {(() => {
+                                  const v = inv.estimatedBudget;
+                                  if (v === null || v === undefined) return '—';
+                                  const num = Number(v);
+                                  if (!Number.isFinite(num)) return String(v);
+                                  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(num);
+                                })()}
+                              </td>
+                              <td>
+                                {inv.status === 'accepted' && <span className="badge bg-success">Accepted</span>}
+                                {inv.status === 'declined' && <span className="badge bg-danger">Declined</span>}
+                                {(!inv.status || inv.status === 'pending') && <span className="badge bg-warning text-dark">Pending</span>}
+                              </td>
+                              <td className="d-flex gap-2">
+                                <Button
+                                  variant="success"
+                                  size="sm"
+                                  disabled={inv.status === 'accepted'}
+                                  onClick={() => respondInvite(inv.id, 'accepted')}
+                                >
+                                  Accept
+                                </Button>
+                                <Button
+                                  variant="outline-danger"
+                                  size="sm"
+                                  disabled={inv.status === 'declined'}
+                                  onClick={() => respondInvite(inv.id, 'declined')}
+                                >
+                                  Decline
+                                </Button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </Table>
+                    )}
+                  </Card.Body>
+                </Card>
               </Tab.Pane>
             </Tab.Content>
               </Col>

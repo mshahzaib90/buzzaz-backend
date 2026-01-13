@@ -133,6 +133,9 @@ export const influencerAPI = {
   refreshYouTubeAnalytics: (id) => api.post(`/influencer/${id}/youtube/refresh`),
   getYouTubeAnalyticsDetailed: (id) => api.get(`/influencer/${id}/youtube/detailed`),
   getInstagramData: (id) => api.get(`/influencer/${id}/instagram/data`),
+  // Campaign invites
+  getCampaignInvites: () => api.get('/influencer/campaigns/invites'),
+  respondCampaignInvite: (campaignId, status) => api.post(`/influencer/campaigns/${campaignId}/respond`, { status }),
 };
 
 // Influencers API (for brands)
