@@ -101,6 +101,25 @@ router.post('/campaigns', authMiddleware, requireRole('brand'), async (req, res)
     const nextRes = await pg.query("SELECT COALESCE(MAX((regexp_replace(id,'[^0-9]','','g'))::int), 0) + 1 AS n FROM campaigns WHERE id LIKE 'c-%'");
     const id = `c-${String(nextRes.rows[0].n).padStart(2, '0')}`;
     const createdBy = req.user.uid;
+
+    // Normalize participants to include status
+    let participantList = [];
+    if (Array.isArray(participants)) {
+      participantList = participants.map(p => {
+        if (typeof p === 'object' && p !== null) return { ...p, status: p.status || 'pending' };
+        return { uid: p, status: 'pending' };
+      });
+    } else if (participants) {
+      // Single participant or object
+       if (typeof participants === 'object' && participants.ids) {
+          // Legacy format { ids: [...] }
+           participantList = participants.ids.map(uid => ({ uid, status: 'pending' }));
+       } else {
+           // Maybe just a single string ID?
+           participantList = [{ uid: participants, status: 'pending' }];
+       }
+    }
+
       const payload = {
         id,
         name,
@@ -108,7 +127,7 @@ router.post('/campaigns', authMiddleware, requireRole('brand'), async (req, res)
         start_date: startDate,
         end_date: endDate,
         created_by: createdBy,
-        participants: Array.isArray(participants) ? JSON.stringify(participants) : JSON.stringify({ ids: participants }),
+        participants: JSON.stringify(participantList),
         estimated_budget: req.body.estimatedBudget || null,
         deliverables: req.body.deliverables || '',
         metadata: req.body.metadata ? JSON.stringify(req.body.metadata) : null
@@ -119,6 +138,25 @@ router.post('/campaigns', authMiddleware, requireRole('brand'), async (req, res)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
       [payload.id, payload.name, payload.description, payload.start_date, payload.end_date, payload.created_by, payload.participants, payload.estimated_budget, payload.deliverables, payload.metadata]
     );
+
+    // Create notifications for invited participants
+    for (const p of participantList) {
+      if (p.uid) {
+        await pg.query(
+          `INSERT INTO notifications (recipient_id, sender_id, type, reference_id, message, status, action_status)
+           VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+          [
+            p.uid,
+            createdBy,
+            'campaign_invite',
+            id,
+            `You are invited for campaign "${name}"`,
+            'unread',
+            'pending'
+          ]
+        );
+      }
+    }
 
     return res.json({ success: true, campaignId: id });
   } catch (error) {
@@ -184,8 +222,11 @@ router.post('/campaigns', authMiddleware, requireRole('brand'), async (req, res)
         const allParticipantIds = new Set();
         campaigns.forEach(c => {
           const parts = typeof c.participants === 'string' ? JSON.parse(c.participants) : c.participants;
-          const ids = Array.isArray(parts) ? parts : (parts?.ids || []);
-          ids.forEach(id => allParticipantIds.add(id));
+          const list = Array.isArray(parts) ? parts : (parts?.ids || []);
+          list.forEach(p => {
+            if (typeof p === 'string') allParticipantIds.add(p);
+            else if (p && p.uid) allParticipantIds.add(p.uid);
+          });
         });
     
         if (allParticipantIds.size > 0) {
@@ -208,13 +249,15 @@ router.post('/campaigns', authMiddleware, requireRole('brand'), async (req, res)
           
           campaigns.forEach(c => {
              const parts = typeof c.participants === 'string' ? JSON.parse(c.participants) : c.participants;
-             const ids = Array.isArray(parts) ? parts : (parts?.ids || []);
-             const acceptance = (c.metadata && typeof c.metadata === 'object') ? (c.metadata.acceptance || {}) : {};
-             c.participantDetails = ids
-               .map(id => {
+             const list = Array.isArray(parts) ? parts : (parts?.ids || []);
+             c.participantDetails = list
+               .map(p => {
+                 const id = typeof p === 'string' ? p : p.uid;
+                 const status = typeof p === 'string' ? 'pending' : (p.status || 'pending');
+                 
                  const base = detailsMap[id];
                  if (!base) return null;
-                 return { ...base, status: acceptance[id] || 'pending' };
+                 return { ...base, status };
                })
                .filter(Boolean);
           });

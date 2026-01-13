@@ -67,6 +67,7 @@ app.use('/api/admin', require('./routes/admin'));
 // Firebase-backed routes are disabled for Postgres-only operation
 app.use('/api/ugc', require('./routes/ugc'));
 app.use('/api/email', require('./routes/email'));
+app.use('/api/notifications', require('./routes/notifications'));
 app.use('/api/chat', require('./routes/chat'));
 
 // Health

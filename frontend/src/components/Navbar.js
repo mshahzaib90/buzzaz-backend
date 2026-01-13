@@ -2,6 +2,7 @@ import React, { useRef, useState } from 'react';
 import { Navbar as BSNavbar, Nav, Container, NavDropdown } from 'react-bootstrap';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import NotificationBell from './NotificationBell';
 
 const Navbar = () => {
   const { user, isAuthenticated, logout } = useAuth();
@@ -124,7 +125,7 @@ const Navbar = () => {
           </Nav>
           {isAuthenticated && (
             <Nav className="ms-auto align-items-center" style={{ gap: '12px' }}>
-              <i className="bi bi-bell"></i>
+              <NotificationBell />
               <NavDropdown 
                 title={
                   <span className="d-inline-flex align-items-center">
