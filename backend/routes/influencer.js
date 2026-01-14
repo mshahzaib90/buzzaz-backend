@@ -41,14 +41,15 @@ router.get('/campaigns/invites', authMiddleware, requireRole(['influencer', 'ugc
       LEFT JOIN users u ON u.uid = c.created_by
       WHERE EXISTS (
         SELECT 1
-        FROM jsonb_array_elements_text(
+        FROM jsonb_array_elements(
           CASE 
             WHEN jsonb_typeof(c.participants) = 'array' THEN c.participants
             WHEN jsonb_typeof(c.participants->'ids') = 'array' THEN c.participants->'ids'
             ELSE '[]'::jsonb
           END
         ) AS elem
-        WHERE elem = $1
+        WHERE (jsonb_typeof(elem) = 'string' AND elem #>> '{}' = $1)
+           OR (jsonb_typeof(elem) = 'object' AND elem->>'uid' = $1)
       )
       ORDER BY c.created_at DESC
       `,
@@ -103,8 +104,16 @@ router.post('/campaigns/:id/respond', authMiddleware, requireRole(['influencer',
     }
     const row = chk.rows[0];
     const parts = typeof row.participants === 'string' ? JSON.parse(row.participants) : row.participants;
-    const ids = Array.isArray(parts) ? parts : (parts?.ids || []);
-    if (!ids.includes(uid)) {
+    const rawList = (!Array.isArray(parts) && parts?.ids) ? parts.ids : parts;
+    const list = Array.isArray(rawList) ? rawList : [];
+
+    const isParticipant = list.some(p => {
+      if (typeof p === 'string') return p === uid;
+      if (typeof p === 'object' && p !== null) return p.uid === uid;
+      return false;
+    });
+
+    if (!isParticipant) {
       return res.status(403).json({ message: 'You are not a participant of this campaign' });
     }
     // Merge acceptance state into metadata JSON
@@ -145,8 +154,16 @@ router.post('/campaigns/:id/deliver', authMiddleware, requireRole(['influencer',
     
     // Check if participant
     const parts = typeof row.participants === 'string' ? JSON.parse(row.participants) : row.participants;
-    const ids = Array.isArray(parts) ? parts : (parts?.ids || []);
-    if (!ids.includes(uid)) {
+    const rawList = (!Array.isArray(parts) && parts?.ids) ? parts.ids : parts;
+    const list = Array.isArray(rawList) ? rawList : [];
+
+    const isParticipant = list.some(p => {
+      if (typeof p === 'string') return p === uid;
+      if (typeof p === 'object' && p !== null) return p.uid === uid;
+      return false;
+    });
+
+    if (!isParticipant) {
       return res.status(403).json({ message: 'You are not a participant of this campaign' });
     }
 
