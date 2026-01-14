@@ -101,6 +101,8 @@
   background-clip: text;
   color: transparent;
 }
+.iw-facebook { background: linear-gradient(180deg, rgba(219, 234, 254, 0.4), rgba(191, 219, 254, 0.4)); }
+.iw-facebook .iw-platform-header i { color: #1877F2; }
 
 /* Connect buttons */
 .iw-connect-btn {

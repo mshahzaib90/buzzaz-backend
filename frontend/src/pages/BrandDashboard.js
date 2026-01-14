@@ -3,6 +3,7 @@ import { Container, Row, Col, Card, Form, Button, Badge, Spinner, Alert, InputGr
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import usePageTitle from '../hooks/usePageTitle';
+
 import api, { influencersAPI, getUploadsUrl } from '../services/api';
 import { chatAPIService as chatAPI } from '../api/chatAPI';
 import ChatInterface from '../components/Chat/ChatInterface';
@@ -63,6 +64,8 @@ const BrandDashboard = () => {
     engagement: false
   });
   const [viewCampaign, setViewCampaign] = useState(null);
+  const [viewDelivery, setViewDelivery] = useState(null);
+
 
   const DEFAULT_CATEGORIES = [
     'Beauty', 'Fashion', 'Skincare', 'Tech', 'Lifestyle', 'Food', 'Vegan Food',
@@ -1161,6 +1164,7 @@ const BrandDashboard = () => {
                       <th>Creator</th>
                       <th>Role</th>
                       <th>Status</th>
+                      <th>Delivery</th>
                       <th>Action</th>
                     </tr>
                   </thead>
@@ -1169,6 +1173,9 @@ const BrandDashboard = () => {
                       const id = p.uid || p.id;
                       const roleLabel = p.role === 'ugc_creator' ? 'UGC Creator' : 'Influencer';
                       const profilePath = p.role === 'ugc_creator' ? `/ugc-creator/${id}` : `/influencer/${id}`;
+                      
+                      const delivery = viewCampaign.metadata?.delivery?.[id];
+                      
                       return (
                         <tr key={id || p.email}>
                           <td>
@@ -1209,6 +1216,19 @@ const BrandDashboard = () => {
                             })()}
                           </td>
                           <td>
+                            {delivery ? (
+                              <Button 
+                                size="sm" 
+                                variant="success" 
+                                onClick={() => setViewDelivery({ ...delivery, creatorName: p.name || p.displayName || p.fullName })}
+                              >
+                                View Work
+                              </Button>
+                            ) : (
+                              <span className="text-muted small">Not delivered</span>
+                            )}
+                          </td>
+                          <td>
                             {id ? (
                               <Button 
                                 size="sm" 
@@ -1235,6 +1255,56 @@ const BrandDashboard = () => {
       </Modal.Body>
       <Modal.Footer>
         <Button variant="secondary" onClick={() => setViewCampaign(null)}>
+          Close
+        </Button>
+      </Modal.Footer>
+    </Modal>
+
+    {/* Delivery Details Modal */}
+    <Modal show={!!viewDelivery} onHide={() => setViewDelivery(null)} centered>
+      <Modal.Header closeButton>
+        <Modal.Title>Work Delivery: {viewDelivery?.creatorName}</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        {viewDelivery && (
+          <>
+            <div className="mb-3">
+              <label className="fw-bold d-block mb-1">Delivered At</label>
+              <span className="text-muted">
+                {viewDelivery.deliveredAt ? new Date(viewDelivery.deliveredAt).toLocaleString() : 'Unknown'}
+              </span>
+            </div>
+            
+            {viewDelivery.comment && (
+              <div className="mb-3">
+                <label className="fw-bold d-block mb-1">Comments</label>
+                <div className="p-3 bg-light rounded border">
+                  {viewDelivery.comment}
+                </div>
+              </div>
+            )}
+
+            <div>
+              <label className="fw-bold d-block mb-1">Attached Links</label>
+              {viewDelivery.links && viewDelivery.links.length > 0 ? (
+                <ul className="list-group">
+                  {viewDelivery.links.map((link, idx) => (
+                    <li key={idx} className="list-group-item">
+                      <a href={link} target="_blank" rel="noopener noreferrer" className="text-break">
+                        {link}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-muted">No links attached</p>
+              )}
+            </div>
+          </>
+        )}
+      </Modal.Body>
+      <Modal.Footer>
+        <Button variant="secondary" onClick={() => setViewDelivery(null)}>
           Close
         </Button>
       </Modal.Footer>

@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import usePageTitle from '../hooks/usePageTitle';
 
+// Login page
 const Login = () => {
   const [formData, setFormData] = useState({
     email: '',

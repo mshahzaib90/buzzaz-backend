@@ -5,6 +5,7 @@ import { Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Compos
 import { useAuth } from '../context/AuthContext';
 import api, { influencerAPI, userAPI } from '../services/api';
 import usePageTitle from '../hooks/usePageTitle';
+
 import ChatInterface from '../components/Chat/ChatInterface';
 import MultiSelect from '../components/MultiSelect';
 import '../styles/dashboard.css';
@@ -32,6 +33,73 @@ const InfluencerDashboard = () => {
   
   // Campaign view state
   const [viewCampaign, setViewCampaign] = useState(null);
+  
+  // Delivery modal state
+  const [showDeliveryModal, setShowDeliveryModal] = useState(false);
+  const [deliveryComment, setDeliveryComment] = useState('');
+  const [deliveryLinks, setDeliveryLinks] = useState(['']);
+  const [isDelivering, setIsDelivering] = useState(false);
+
+  const handleLinkChange = (index, value) => {
+    const newLinks = [...deliveryLinks];
+    newLinks[index] = value;
+    setDeliveryLinks(newLinks);
+  };
+
+  const addLinkField = () => {
+    setDeliveryLinks([...deliveryLinks, '']);
+  };
+
+  const removeLinkField = (index) => {
+    const newLinks = deliveryLinks.filter((_, i) => i !== index);
+    setDeliveryLinks(newLinks.length ? newLinks : ['']);
+  };
+
+  const openDeliveryModal = () => {
+    if (viewCampaign?.delivery) {
+      setDeliveryComment(viewCampaign.delivery.comment || '');
+      setDeliveryLinks(
+        viewCampaign.delivery.links && viewCampaign.delivery.links.length > 0
+          ? viewCampaign.delivery.links
+          : ['']
+      );
+    } else {
+      setDeliveryComment('');
+      setDeliveryLinks(['']);
+    }
+    setShowDeliveryModal(true);
+  };
+
+  const handleDeliverWork = async () => {
+    if (!viewCampaign) return;
+    
+    // Validate
+    const validLinks = deliveryLinks.filter(l => l.trim());
+    if (!deliveryComment.trim() && validLinks.length === 0) {
+      alert('Please provide a comment or at least one link.');
+      return;
+    }
+
+    setIsDelivering(true);
+    try {
+      await api.post(`/influencer/campaigns/${viewCampaign.id}/deliver`, {
+        comment: deliveryComment,
+        links: validLinks
+      });
+      setSuccess('Work delivered successfully!');
+      setShowDeliveryModal(false);
+      setDeliveryComment('');
+      setDeliveryLinks(['']);
+      setViewCampaign(null); // Close campaign details
+      fetchInvites(); // Refresh list to update status if needed
+    } catch (err) {
+      console.error('Error delivering work:', err);
+      setError(err.response?.data?.message || 'Failed to deliver work');
+    } finally {
+      setIsDelivering(false);
+    }
+  };
+
 
   // One-time guard to avoid multiple auto-refreshes when sample data is detected
   const hasAutoRefreshedYT = useRef(false);
@@ -677,6 +745,31 @@ const InfluencerDashboard = () => {
     }
   };
 
+  // Handle other platforms connection (placeholder/manual entry)
+  const handleConnectOther = async () => {
+    if (!connectUsername.trim()) {
+      setError(`Please enter a valid ${selectedPlatform} username`);
+      return;
+    }
+    setConnectLoading(true);
+    setError('');
+    try {
+      const updateData = {};
+      if (selectedPlatform === 'tiktok') updateData.tiktokUsername = connectUsername;
+      if (selectedPlatform === 'facebook') updateData.facebookUsername = connectUsername;
+      
+      await influencerAPI.updateProfile(user.uid, updateData);
+      setProfile(prev => ({ ...prev, ...updateData }));
+      setShowConnectModal(false);
+      setSuccess(`${selectedPlatform} account connected successfully!`);
+    } catch (err) {
+      console.error(err);
+      setError('Failed to connect account');
+    } finally {
+      setConnectLoading(false);
+    }
+  };
+
   // Handle platform connection modal
   const handleConnectPlatform = (platform) => {
     setSelectedPlatform(platform);
@@ -922,6 +1015,14 @@ const InfluencerDashboard = () => {
                     <Button type="button" className="glass-button mb-2" onClick={() => setActiveTab('youtube')}>
                       <i className="bi bi-youtube me-2"></i>
                       YouTube
+                    </Button>
+                    <Button type="button" className="glass-button mb-2" onClick={() => setActiveTab('tiktok')}>
+                      <i className="bi bi-tiktok me-2"></i>
+                      TikTok
+                    </Button>
+                    <Button type="button" className="glass-button mb-2" onClick={() => setActiveTab('facebook')}>
+                      <i className="bi bi-facebook me-2"></i>
+                      Facebook
                     </Button>
                     <Button type="button" className="glass-button mb-2" onClick={() => setActiveTab('chat')}>
                       <i className="bi bi-chat-dots me-2"></i>
@@ -1763,6 +1864,56 @@ const InfluencerDashboard = () => {
                 )}
               </Tab.Pane>
 
+              {/* TikTok Tab */}
+              <Tab.Pane eventKey="tiktok">
+                {profile?.tiktokUsername ? (
+                  <div className="text-center py-5">
+                    <i className="bi bi-tiktok display-4 text-dark mb-3"></i>
+                    <h6 className="text-dark">TikTok Connected</h6>
+                    <p className="fs-5 mb-3">@{profile.tiktokUsername}</p>
+                    <Alert variant="info" className="d-inline-block">
+                      <i className="bi bi-info-circle me-2"></i>
+                      Analytics integration coming soon
+                    </Alert>
+                  </div>
+                ) : (
+                  <div className="text-center py-5">
+                    <i className="bi bi-tiktok display-4 text-muted mb-3"></i>
+                    <h6 className="text-muted">TikTok Not Connected</h6>
+                    <p className="text-muted mb-3">Connect your TikTok account to view insights</p>
+                    <Button variant="outline-dark" onClick={() => handleConnectPlatform('tiktok')} style={{ borderRadius: '20px' }}>
+                      <i className="bi bi-tiktok me-2"></i>
+                      Connect TikTok
+                    </Button>
+                  </div>
+                )}
+              </Tab.Pane>
+
+              {/* Facebook Tab */}
+              <Tab.Pane eventKey="facebook">
+                {profile?.facebookUsername ? (
+                  <div className="text-center py-5">
+                    <i className="bi bi-facebook display-4 text-primary mb-3"></i>
+                    <h6 className="text-primary">Facebook Connected</h6>
+                    <p className="fs-5 mb-3">@{profile.facebookUsername}</p>
+                    <Alert variant="info" className="d-inline-block">
+                      <i className="bi bi-info-circle me-2"></i>
+                      Analytics integration coming soon
+                    </Alert>
+                  </div>
+                ) : (
+                  <div className="text-center py-5">
+                    <i className="bi bi-facebook display-4 text-muted mb-3"></i>
+                    <h6 className="text-muted">Facebook Not Connected</h6>
+                    <p className="text-muted mb-3">Connect your Facebook account to view insights</p>
+                    <Button variant="outline-primary" onClick={() => handleConnectPlatform('facebook')} style={{ borderRadius: '20px' }}>
+                      <i className="bi bi-facebook me-2"></i>
+                      Connect Facebook
+                    </Button>
+                  </div>
+                )}
+              </Tab.Pane>
+
               {/* Chat Tab */}
               <Tab.Pane eventKey="chat">
                 <ChatInterface currentUser={user} />
@@ -2304,6 +2455,14 @@ const InfluencerDashboard = () => {
           </Button>
           {viewCampaign && (
              <>
+                {viewCampaign.status === 'accepted' && (
+                 <Button
+                   variant={viewCampaign.delivery ? "warning" : "primary"}
+                   onClick={openDeliveryModal}
+                 >
+                   {viewCampaign.delivery ? "Update Delivery" : "Deliver Work"}
+                 </Button>
+               )}
                 {viewCampaign.status !== 'accepted' && (
                   <Button
                     variant="success"
@@ -2315,7 +2474,7 @@ const InfluencerDashboard = () => {
                     Accept
                   </Button>
                 )}
-                {viewCampaign.status !== 'declined' && (
+                {viewCampaign.status !== 'declined' && viewCampaign.status !== 'accepted' && (
                   <Button
                     variant="outline-danger"
                     onClick={() => {
@@ -2328,6 +2487,63 @@ const InfluencerDashboard = () => {
                 )}
              </>
           )}
+        </Modal.Footer>
+      </Modal>
+
+      {/* Delivery Modal */}
+      <Modal show={showDeliveryModal} onHide={() => setShowDeliveryModal(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Deliver Work</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form>
+            <Form.Group className="mb-3">
+              <Form.Label>Comments</Form.Label>
+              <Form.Control
+                as="textarea"
+                rows={3}
+                placeholder="Add any comments about your work..."
+                value={deliveryComment}
+                onChange={(e) => setDeliveryComment(e.target.value)}
+              />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>Work Links</Form.Label>
+              {deliveryLinks.map((link, index) => (
+                <div key={index} className="d-flex gap-2 mb-2">
+                  <Form.Control
+                    type="url"
+                    placeholder="https://..."
+                    value={link}
+                    onChange={(e) => handleLinkChange(index, e.target.value)}
+                  />
+                  {deliveryLinks.length > 1 && (
+                    <Button variant="outline-danger" onClick={() => removeLinkField(index)}>
+                      <i className="bi bi-trash"></i>
+                    </Button>
+                  )}
+                </div>
+              ))}
+              <Button variant="outline-secondary" size="sm" onClick={addLinkField}>
+                <i className="bi bi-plus"></i> Add Link
+              </Button>
+            </Form.Group>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowDeliveryModal(false)}>
+            Cancel
+          </Button>
+          <Button variant="primary" onClick={handleDeliverWork} disabled={isDelivering}>
+            {isDelivering ? (
+              <>
+                <Spinner animation="border" size="sm" className="me-2" />
+                Delivering...
+              </>
+            ) : (
+              'Submit Delivery'
+            )}
+          </Button>
         </Modal.Footer>
       </Modal>
 
@@ -2365,24 +2581,22 @@ const InfluencerDashboard = () => {
             </p>
           </div>
           
-          {selectedPlatform === 'instagram' && (
-            <Form>
-              <Form.Group className="mb-3">
-                <Form.Label>Instagram Username</Form.Label>
-                <Form.Control
-                  type="text"
-                  placeholder="Enter your Instagram username (without @)"
-                  value={connectUsername}
-                  onChange={(e) => setConnectUsername(e.target.value)}
-                />
-              </Form.Group>
-            </Form>
-          )}
+          <Form>
+            <Form.Group className="mb-3">
+              <Form.Label>{selectedPlatform?.charAt(0).toUpperCase() + selectedPlatform?.slice(1)} Username</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder={`Enter your ${selectedPlatform} username`}
+                value={connectUsername}
+                onChange={(e) => setConnectUsername(e.target.value)}
+              />
+            </Form.Group>
+          </Form>
         </Modal.Body>
         <Modal.Footer>
           <Button 
             variant="primary" 
-            onClick={handleConnectInstagram}
+            onClick={selectedPlatform === 'instagram' ? handleConnectInstagram : handleConnectOther}
             disabled={connectLoading}
           >
             {connectLoading ? (

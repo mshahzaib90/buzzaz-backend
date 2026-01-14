@@ -3,7 +3,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import usePageTitle from '../hooks/usePageTitle';
 
-// Minimal header-only homepage UI per spec
 // White background, black text; logo left; nav links; search icon; two CTA buttons; top-right login
 const Homepage = () => {
   const [signupOpen, setSignupOpen] = useState(false);

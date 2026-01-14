@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { ugcCreatorAPI } from '../api/ugcAPI';
 import MultiSelect from '../components/MultiSelect';
 import usePageTitle from '../hooks/usePageTitle';
+
 import '../styles/dashboard.css';
 
 const UGCWizard = () => {

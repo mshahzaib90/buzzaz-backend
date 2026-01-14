@@ -11,7 +11,7 @@ import '../styles/influencerWizard.css';
 
 const InfluencerWizard = () => {
   // Temporary feature flag to hide TikTok card
-  const SHOW_TIKTOK_CONNECT = false;
+  const SHOW_TIKTOK_CONNECT = true;
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -25,6 +25,9 @@ const InfluencerWizard = () => {
   const [tiktokUsername, setTiktokUsername] = useState('');
   const [isLoadingTT, setIsLoadingTT] = useState(false);
   const [tiktokLinked, setTiktokLinked] = useState(null);
+
+  // Facebook state
+  const [facebookUsername, setFacebookUsername] = useState('');
   
   const { user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
@@ -1372,25 +1375,16 @@ const waitForProfileCompletion = async (timeoutMs = 4000, intervalMs = 300) => {
                                   placeholder="e.g. @username or username"
                                   value={tiktokUsername}
                                   onChange={(e) => setTiktokUsername(e.target.value)}
+                                  disabled={true} // UI only
                                 />
                               </Form.Group>
                               <Button 
                                 className="iw-connect-btn"
-                                onClick={handleConnectTikTok} 
-                                disabled={isLoadingTT}
+                                disabled={true} // UI only
                                 size="sm"
                               >
-                                {isLoadingTT ? (
-                                  <>
-                                    <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" className="me-2" />
-                                    Connecting...
-                                  </>
-                                ) : (
-                                  <>
-                                    <i className="bi bi-link-45deg me-2"></i>
-                                    Connect TikTok
-                                  </>
-                                )}
+                                <i className="bi bi-link-45deg me-2"></i>
+                                Connect TikTok
                               </Button>
                             </>
                           ) : (
@@ -1460,6 +1454,34 @@ const waitForProfileCompletion = async (timeoutMs = 4000, intervalMs = 300) => {
                       </Card>
                     </Col>
                     )}
+                    <Col md={4} className="mb-4">
+                      <Card className="iw-platform-card iw-facebook">
+                        <Card.Body>
+                          <div className="iw-platform-header mb-2">
+                            <i className="bi bi-facebook me-2"></i>
+                            <span>Facebook</span>
+                          </div>
+                          <Form.Group className="mb-3">
+                            <Form.Label>Facebook Username</Form.Label>
+                            <Form.Control
+                              type="text"
+                              placeholder="e.g. username"
+                              value={facebookUsername}
+                              onChange={(e) => setFacebookUsername(e.target.value)}
+                              disabled={true} // UI only
+                            />
+                          </Form.Group>
+                          <Button 
+                            className="iw-connect-btn"
+                            disabled={true} // UI only
+                            size="sm"
+                          >
+                            <i className="bi bi-link-45deg me-2"></i>
+                            Connect Facebook
+                          </Button>
+                        </Card.Body>
+                      </Card>
+                    </Col>
                   </Row>
                 </div>
 

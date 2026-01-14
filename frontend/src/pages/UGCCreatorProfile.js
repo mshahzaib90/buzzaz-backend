@@ -8,6 +8,7 @@ import { chatAPIService as chatAPI } from '../api/chatAPI';
 import UGCLeftNav from '../components/UGCLeftNav';
 import MultiSelect from '../components/MultiSelect';
 import usePageTitle from '../hooks/usePageTitle';
+
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ComposedChart, Bar, Area } from 'recharts';
 
 const UGCCreatorProfile = () => {

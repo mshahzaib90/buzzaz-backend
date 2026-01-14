@@ -20,7 +20,9 @@ const WORKFLOW_OPTIONS = [
 
 const SOCIAL_NETWORKS = [
     { id: 'instagram', label: 'Instagram', iconClass: 'bi bi-instagram icon-insta' },
-    { id: 'youtube', label: 'YouTube', iconClass: 'bi bi-youtube icon-youtube' }
+    { id: 'youtube', label: 'YouTube', iconClass: 'bi bi-youtube icon-youtube' },
+    { id: 'tiktok', label: 'TikTok', iconClass: 'bi bi-tiktok icon-tiktok' },
+    { id: 'facebook', label: 'Facebook', iconClass: 'bi bi-facebook icon-facebook' }
 ];
 
 const AVAILABLE_INTERESTS = [
@@ -349,7 +351,7 @@ const getInitialFormData = () => ({
     budget: '50,000',
     currency: 'USD',
     budgetType: 'Fixed Budget',
-    platformDistribution: { instagram: 60, youtube: 40 },
+    platformDistribution: { instagram: 60, youtube: 40, tiktok: 0, facebook: 0 },
     ugcRequirements: [],
     influencerRequirements: [],
     maxSpendPerCreator: '',
@@ -453,7 +455,7 @@ const CreateCampaignWizard = ({ show, onHide, onSubmit }) => {
                     />
 
                     <label className="wizard-input-label mt-4">Social Networks</label>
-                    <div className="d-flex flex-wrap gap-2">
+                    <div className="social-options-grid">
                         {SOCIAL_NETWORKS.map(net => (
                             <div 
                                 key={net.id} 
@@ -1250,6 +1252,8 @@ const CreateCampaignWizard = ({ show, onHide, onSubmit }) => {
                                         <div className="mt-3 d-flex gap-2 justify-content-center">
                                             {creator.platforms.includes('instagram') && <i className="bi bi-instagram" style={{ color: '#E1306C' }}></i>}
                                             {creator.platforms.includes('youtube') && <i className="bi bi-youtube" style={{ color: '#FF0000' }}></i>}
+                                            {creator.platforms.includes('tiktok') && <i className="bi bi-tiktok" style={{ color: '#000000' }}></i>}
+                                            {creator.platforms.includes('facebook') && <i className="bi bi-facebook" style={{ color: '#1877F2' }}></i>}
                                         </div>
                                     </div>
                                 );

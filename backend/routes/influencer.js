@@ -56,7 +56,10 @@ router.get('/campaigns/invites', authMiddleware, requireRole(['influencer', 'ugc
     );
     const invites = result.rows.map(r => {
       const acceptance = (r.metadata && typeof r.metadata === 'object') ? (r.metadata.acceptance || {}) : {};
+      const deliveryData = (r.metadata && typeof r.metadata === 'object') ? (r.metadata.delivery || {}) : {};
       const status = acceptance[uid] || 'pending';
+      const delivery = deliveryData[uid] || null;
+      
       return {
         id: r.id,
         name: r.name,
@@ -66,7 +69,8 @@ router.get('/campaigns/invites', authMiddleware, requireRole(['influencer', 'ugc
         brand: { id: r.created_by, name: r.brand_name || r.brand_email || 'Unknown Brand', email: r.brand_email || null },
         estimatedBudget: r.estimated_budget,
         deliverables: r.deliverables,
-        status
+        status,
+        delivery
       };
     });
     res.json({ invites });
@@ -113,6 +117,77 @@ router.post('/campaigns/:id/respond', authMiddleware, requireRole(['influencer',
   } catch (error) {
     console.error('Respond to campaign invite error:', error);
     res.status(500).json({ message: 'Server error while responding to invite' });
+  }
+});
+
+// Influencer: deliver campaign work
+router.post('/campaigns/:id/deliver', authMiddleware, requireRole(['influencer', 'ugc_creator']), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { comment, links } = req.body; // links is array of strings
+    const uid = req.user.uid;
+
+    // Validate inputs
+    if (!comment && (!links || !Array.isArray(links) || links.length === 0)) {
+       return res.status(400).json({ message: 'Please provide a comment or links.' });
+    }
+
+    // Ensure campaign exists and influencer is a participant
+    const chk = await pg.query(
+      `SELECT id, created_by, metadata, participants, name FROM campaigns WHERE id = $1`,
+      [id]
+    );
+
+    if (chk.rowCount === 0) {
+      return res.status(404).json({ message: 'Campaign not found' });
+    }
+    const row = chk.rows[0];
+    
+    // Check if participant
+    const parts = typeof row.participants === 'string' ? JSON.parse(row.participants) : row.participants;
+    const ids = Array.isArray(parts) ? parts : (parts?.ids || []);
+    if (!ids.includes(uid)) {
+      return res.status(403).json({ message: 'You are not a participant of this campaign' });
+    }
+
+    // Check if accepted
+    const metadata = (row.metadata && typeof row.metadata === 'object') ? row.metadata : {};
+    const acceptance = (metadata.acceptance && typeof metadata.acceptance === 'object') ? metadata.acceptance : {};
+    if (acceptance[uid] !== 'accepted') {
+       return res.status(400).json({ message: 'You must accept the campaign first.' });
+    }
+
+    // Update metadata with delivery
+    const delivery = (metadata.delivery && typeof metadata.delivery === 'object') ? metadata.delivery : {};
+    delivery[uid] = {
+      comment,
+      links,
+      deliveredAt: new Date().toISOString()
+    };
+    
+    const newMeta = { ...metadata, delivery };
+    await pg.query('UPDATE campaigns SET metadata = $1 WHERE id = $2', [JSON.stringify(newMeta), id]);
+
+    // Send notification to brand
+    const brandId = row.created_by;
+    await pg.query(
+        `INSERT INTO notifications (recipient_id, sender_id, type, reference_id, message, status, action_status)
+         VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+        [
+          brandId,
+          uid,
+          'campaign_delivery',
+          id,
+          `Influencer has delivered work for campaign "${row.name}"`,
+          'unread',
+          'pending'
+        ]
+    );
+
+    res.json({ success: true, campaignId: id });
+  } catch (error) {
+    console.error('Deliver campaign error:', error);
+    res.status(500).json({ message: 'Server error while delivering campaign work' });
   }
 });
 
@@ -273,6 +348,8 @@ router.get('/profile', authMiddleware, async (req, res) => {
       categories: ip.categories || inf.niche || [],
       contentTypes: ip.content_types || inf.content_style || [],
       languages: ip.languages || inf.languages || [],
+      tiktokUsername: inf.tiktok_username || null,
+      facebookUsername: inf.facebook_username || null,
       createdAt: ip.created_at || inf.created_at || new Date().toISOString(),
       
       // Additional fields
@@ -339,6 +416,8 @@ router.get('/:id', authMiddleware, async (req, res) => {
       categories: ip.categories || inf.niche || [],
       contentTypes: ip.content_types || inf.content_style || [],
       languages: ip.languages || inf.languages || [],
+      tiktokUsername: inf.tiktok_username || null,
+      facebookUsername: inf.facebook_username || null,
       createdAt: ip.created_at || inf.created_at || new Date().toISOString(),
       email: user.email || null,
       
@@ -460,6 +539,8 @@ router.put('/:id', authMiddleware, requireRole('influencer'), async (req, res) =
       categories,
       contentTypes,
       languages,
+      tiktokUsername,
+      facebookUsername,
       instagramUsername,
       priceRangeMin,
       priceRangeMax,
@@ -502,6 +583,8 @@ router.put('/:id', authMiddleware, requireRole('influencer'), async (req, res) =
          delivery_outdoor_shoot = COALESCE($18, delivery_outdoor_shoot),
          delivery_revisions = COALESCE($19, delivery_revisions),
          languages = COALESCE($20, languages),
+         tiktok_username = COALESCE($21, tiktok_username),
+         facebook_username = COALESCE($22, facebook_username),
          updated_at = $8
        WHERE uid = $1`,
       [
@@ -509,7 +592,7 @@ router.put('/:id', authMiddleware, requireRole('influencer'), async (req, res) =
         toIntOrNull(priceRangeMin), toIntOrNull(priceRangeMax), toIntOrNull(reelPrice), toIntOrNull(storyPrice), 
         toIntOrNull(eventPrice), toIntOrNull(multiplePlatformsPrice),
         averageDeliveryTime, deliveryProductBased, deliveryNoProduct, deliveryOutdoorShoot, deliveryRevisions,
-        languages
+        languages, tiktokUsername, facebookUsername
       ]
     );
 
