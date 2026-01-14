@@ -1934,7 +1934,7 @@ const InfluencerDashboard = () => {
                         <i className="bi bi-exclamation-triangle me-2"></i>
                         {invitesError}
                       </Alert>
-                    ) : invites.filter(i => i.status && i.status !== 'pending').length === 0 ? (
+                    ) : invites.length === 0 ? (
                       <div className="text-center py-5">
                         <p className="text-muted mb-0">No campaign invites yet</p>
                       </div>
@@ -1951,7 +1951,7 @@ const InfluencerDashboard = () => {
                           </tr>
                         </thead>
                         <tbody>
-                          {invites.filter(i => i.status && i.status !== 'pending').map(inv => (
+                          {invites.map(inv => (
                             <tr key={inv.id}>
                               <td>
                                 <div className="fw-semibold">{inv.name}</div>
