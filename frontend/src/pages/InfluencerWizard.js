@@ -23,6 +23,7 @@ const InfluencerWizard = () => {
   
   // TikTok state
   const [tiktokUsername, setTiktokUsername] = useState('');
+  // eslint-disable-next-line no-unused-vars
   const [isLoadingTT, setIsLoadingTT] = useState(false);
   const [tiktokLinked, setTiktokLinked] = useState(null);
 
@@ -426,6 +427,7 @@ const InfluencerWizard = () => {
     }
   };
 
+  // eslint-disable-next-line no-unused-vars
   const handleConnectTikTok = async () => {
     if (!tiktokUsername.trim()) {
       setError('Please enter a TikTok username');
